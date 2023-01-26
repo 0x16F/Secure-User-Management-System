@@ -158,7 +158,7 @@ func (h *Handler) Create(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
+	return c.JSON(http.StatusCreated, echo.Map{
 		"id": id,
 	})
 }
