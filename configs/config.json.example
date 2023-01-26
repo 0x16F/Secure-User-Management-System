@@ -1,0 +1,15 @@
+{
+    "http": {
+        "port": 8080
+    },
+    "database": {
+        "host": "127.0.0.1:5432",
+        "schema": "postgres",
+        "user": "postgres",
+        "password": "postgres"
+    },
+    "jwt": {
+        "access_secret": "",
+        "refresh_secret": ""
+    }
+}

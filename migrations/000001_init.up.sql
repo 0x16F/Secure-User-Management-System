@@ -1,0 +1,15 @@
+CREATE TABLE permissions (
+	"id" SERIAL NOT NULL UNIQUE PRIMARY KEY,
+	"status" TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE users (
+	"id" SERIAL NOT NULL UNIQUE PRIMARY KEY,
+	"name" TEXT NOT NULL,
+    "surname" TEXT NOT NULL,
+    "login" TEXT NOT NULL UNIQUE,
+	"password" TEXT NOT NULL,
+	"salt" TEXT NOT NULL,
+	"permissions" TEXT NOT NULL DEFAULT 'read-only' REFERENCES "permissions" ("status") ON UPDATE CASCADE ON DELETE CASCADE,
+	"birthday" BIGINT NOT NULL
+);
