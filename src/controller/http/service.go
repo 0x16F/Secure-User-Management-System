@@ -8,16 +8,17 @@ import (
 	"test-project/src/pkg/jwt"
 	"time"
 
+	"github.com/allegro/bigcache/v3"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func NewServer(storage *repository.Storage, jwt jwt.Servicer) *Server {
+func NewServer(storage *repository.Storage, cache *bigcache.BigCache, jwt jwt.Servicer) *Server {
 	router := echo.New()
 
 	server := &Server{
 		Router:   router,
-		Handlers: handlers.NewHandlers(router, jwt, storage),
+		Handlers: handlers.NewHandlers(router, jwt, cache, storage),
 	}
 
 	server.configureRouters()
@@ -32,7 +33,7 @@ func (s *Server) configureRouters() {
 		auth.POST("/refresh", s.Handlers.Auth.Refresh)
 	}
 
-	users := s.Router.Group("/users", s.Handlers.Auth.IsAuthorized)
+	users := s.Router.Group("/users", s.Handlers.Auth.IsAuthorized, s.Handlers.Users.CheckPermissions)
 	{
 		users.GET("/:id", s.Handlers.Users.FindOne)
 		users.GET("", s.Handlers.Users.FindAll)

@@ -28,6 +28,8 @@ func (s *Storage) Create(dto *UserDTO) (*int64, error) {
 	u := User{}
 
 	// выглядит не очень, но мне нужно возвращать id пользователя, который был создан
+	// возможно есть какой-то более элегантный способ сделать это на ORM'ке, но я его не знаю
+
 	u.Name = dto.Name
 	u.Surname = dto.Surname
 	u.Login = dto.Login

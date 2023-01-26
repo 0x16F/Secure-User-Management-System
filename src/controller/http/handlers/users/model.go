@@ -3,12 +3,14 @@ package users
 import (
 	"test-project/src/controller/repository"
 
+	"github.com/allegro/bigcache/v3"
 	"github.com/labstack/echo/v4"
 )
 
 type Handler struct {
 	Router  *echo.Echo
 	Storage *repository.Storage
+	Cache   *bigcache.BigCache
 }
 
 type IHandler interface {
@@ -17,4 +19,5 @@ type IHandler interface {
 	Create(c echo.Context) error
 	FindOne(c echo.Context) error
 	FindAll(c echo.Context) error
+	CheckPermissions(next echo.HandlerFunc) echo.HandlerFunc
 }

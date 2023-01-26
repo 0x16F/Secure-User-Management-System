@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"test-project/src/controller/http"
 	"test-project/src/controller/repository"
 	"test-project/src/pkg/config"
 	"test-project/src/pkg/jwt"
+	"time"
+
+	"github.com/allegro/bigcache/v3"
 )
 
 func main() {
@@ -29,8 +33,14 @@ func main() {
 		panic(err)
 	}
 
+	// init cache (we can use redis, but there is no need)
+	cache, err := bigcache.New(context.Background(), bigcache.DefaultConfig(10*time.Minute))
+	if err != nil {
+		panic(err)
+	}
+
 	// init http server
-	server := http.NewServer(storage, jwtService)
+	server := http.NewServer(storage, cache, jwtService)
 
 	// start listening
 	if err := server.Start(config.HTTP.Port); err != nil {

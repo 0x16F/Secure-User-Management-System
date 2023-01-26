@@ -1,15 +1,19 @@
 package auth
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
+	"test-project/src/internal/permissions"
+	headerparser "test-project/src/pkg/header-parser"
 
+	"github.com/allegro/bigcache/v3"
 	"github.com/labstack/echo/v4"
 )
 
 func (h *Handler) IsAuthorized(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		access := c.Request().Header.Get("Authorization")
+		access := headerparser.GetUserToken(c)
 
 		if access == "" {
 			return c.JSON(http.StatusForbidden, echo.Map{
@@ -24,22 +28,25 @@ func (h *Handler) IsAuthorized(next echo.HandlerFunc) echo.HandlerFunc {
 			})
 		}
 
-		c.Request().Header.Set("X-User-Id", fmt.Sprint(token.Id))
-		c.Request().Header.Set("X-User-Permissions", token.Permissions)
+		result, err := h.Cache.Get(fmt.Sprint(token.Id))
+		if err != nil {
+			if err != bigcache.ErrEntryNotFound {
+				h.Router.Logger.Error(err)
 
-		return next(c)
-	}
-}
+				return c.JSON(http.StatusInternalServerError, echo.Map{
+					"message": err.Error(),
+				})
+			}
+		}
 
-func (h *Handler) IsBanned(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		permissions := c.Request().Header.Get("X-User-Permissions")
-
-		if permissions == "banned" {
+		if token.Permissions == permissions.BannedPermission || bytes.Equal(result, []byte(permissions.BannedPermission)) {
 			return c.JSON(http.StatusForbidden, echo.Map{
 				"message": "you're banned",
 			})
 		}
+
+		headerparser.SetUserId(c, fmt.Sprint(token.Id))
+		headerparser.SetUserPermissions(c, token.Permissions)
 
 		return next(c)
 	}

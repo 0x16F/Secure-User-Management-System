@@ -7,15 +7,17 @@ import (
 	"test-project/src/pkg/utils"
 	"time"
 
+	"github.com/allegro/bigcache/v3"
 	"github.com/go-pg/pg/v10"
 	"github.com/labstack/echo/v4"
 )
 
-func NewHandler(router *echo.Echo, jwt jwt.Servicer, storage *repository.Storage) IHandler {
+func NewHandler(router *echo.Echo, jwt jwt.Servicer, cache *bigcache.BigCache, storage *repository.Storage) IHandler {
 	return &Handler{
 		Router:  router,
 		Storage: storage,
 		JWT:     jwt,
+		Cache:   cache,
 	}
 }
 
@@ -34,6 +36,8 @@ func (h *Handler) Login(c echo.Context) error {
 			})
 		}
 
+		h.Router.Logger.Error(err)
+
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": err.Error(),
 		})
@@ -51,6 +55,8 @@ func (h *Handler) Login(c echo.Context) error {
 	})
 
 	if err != nil {
+		h.Router.Logger.Error(err)
+
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": err.Error(),
 		})
@@ -62,6 +68,8 @@ func (h *Handler) Login(c echo.Context) error {
 	})
 
 	if err != nil {
+		h.Router.Logger.Error(err)
+
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": err.Error(),
 		})
@@ -92,7 +100,7 @@ func (h *Handler) Refresh(c echo.Context) error {
 	if err != nil {
 		if err == jwt.ErrExpired {
 			return c.JSON(http.StatusForbidden, echo.Map{
-				"message": "refresh is expired",
+				"message": err.Error(),
 			})
 		}
 
@@ -107,6 +115,8 @@ func (h *Handler) Refresh(c echo.Context) error {
 	})
 
 	if err != nil {
+		h.Router.Logger.Error(err)
+
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": err.Error(),
 		})
@@ -118,6 +128,8 @@ func (h *Handler) Refresh(c echo.Context) error {
 	})
 
 	if err != nil {
+		h.Router.Logger.Error(err)
+
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": err.Error(),
 		})

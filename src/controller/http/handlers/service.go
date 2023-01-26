@@ -6,12 +6,13 @@ import (
 	"test-project/src/controller/repository"
 	"test-project/src/pkg/jwt"
 
+	"github.com/allegro/bigcache/v3"
 	"github.com/labstack/echo/v4"
 )
 
-func NewHandlers(router *echo.Echo, jwt jwt.Servicer, storage *repository.Storage) *Handlers {
+func NewHandlers(router *echo.Echo, jwt jwt.Servicer, cache *bigcache.BigCache, storage *repository.Storage) *Handlers {
 	return &Handlers{
-		Users: users.NewHandler(router, storage),
-		Auth:  auth.NewHandler(router, jwt, storage),
+		Users: users.NewHandler(router, cache, storage),
+		Auth:  auth.NewHandler(router, jwt, cache, storage),
 	}
 }
