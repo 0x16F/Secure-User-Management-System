@@ -29,6 +29,7 @@ func (s *Server) configureRouters() {
 	auth := s.Router.Group("/auth")
 	{
 		auth.POST("/login", s.Handlers.Auth.Login)
+		auth.POST("/refresh", s.Handlers.Auth.Refresh)
 	}
 
 	users := s.Router.Group("/users", s.Handlers.Auth.IsAuthorized)

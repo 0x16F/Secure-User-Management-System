@@ -112,6 +112,17 @@ func (h *Handler) Refresh(c echo.Context) error {
 		})
 	}
 
+	access, err := h.JWT.GenerateAccess(&jwt.GenerateDTO{
+		Id:          token.Id,
+		Permissions: token.Permissions,
+	})
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": err.Error(),
+		})
+	}
+
 	c.SetCookie(&http.Cookie{
 		Name:     "refresh",
 		Value:    refresh,
@@ -121,6 +132,6 @@ func (h *Handler) Refresh(c echo.Context) error {
 	})
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"message": "ok",
+		"access": access,
 	})
 }
