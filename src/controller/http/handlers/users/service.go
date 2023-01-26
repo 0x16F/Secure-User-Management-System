@@ -18,12 +18,6 @@ func NewHandler(router *echo.Echo, storage *repository.Storage) IHandler {
 }
 
 func (h *Handler) Update(c echo.Context) error {
-	if c.Request().Header.Get("X-User-Permissions") != "admin" {
-		return c.JSON(http.StatusForbidden, echo.Map{
-			"message": "you don't have enough permissions",
-		})
-	}
-
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
@@ -52,16 +46,22 @@ func (h *Handler) Update(c echo.Context) error {
 }
 
 func (h *Handler) Delete(c echo.Context) error {
-	if c.Request().Header.Get("X-User-Permissions") != "admin" {
-		return c.JSON(http.StatusForbidden, echo.Map{
-			"message": "you don't have enough permissions",
-		})
-	}
-
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"message": "invalid id",
+		})
+	}
+
+	if _, err := h.Storage.Users.FindOne(id); err != nil {
+		if err == pg.ErrNoRows {
+			return c.JSON(http.StatusNotFound, echo.Map{
+				"message": "user not found",
+			})
+		}
+
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"message": err.Error(),
 		})
 	}
 
@@ -77,12 +77,6 @@ func (h *Handler) Delete(c echo.Context) error {
 }
 
 func (h *Handler) Create(c echo.Context) error {
-	if c.Request().Header.Get("X-User-Permissions") != "admin" {
-		return c.JSON(http.StatusForbidden, echo.Map{
-			"message": "you don't have enough permissions",
-		})
-	}
-
 	request := user.CreateUserDTO{}
 
 	if err := c.Bind(&request); err != nil {

@@ -30,3 +30,17 @@ func (h *Handler) IsAuthorized(next echo.HandlerFunc) echo.HandlerFunc {
 		return next(c)
 	}
 }
+
+func (h *Handler) IsBanned(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		permissions := c.Request().Header.Get("X-User-Permissions")
+
+		if permissions == "banned" {
+			return c.JSON(http.StatusForbidden, echo.Map{
+				"message": "you're banned",
+			})
+		}
+
+		return next(c)
+	}
+}
