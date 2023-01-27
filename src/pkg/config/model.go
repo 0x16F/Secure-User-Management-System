@@ -12,6 +12,7 @@ type HTTP struct {
 
 type Database struct {
 	Host     string `json:"host"`
+	Port     uint16 `json:"port"`
 	Schema   string `json:"schema"`
 	User     string `json:"user"`
 	Password string `json:"password"`

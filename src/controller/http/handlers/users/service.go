@@ -21,6 +21,19 @@ func NewHandler(router *echo.Echo, cache *bigcache.BigCache, storage *repository
 	}
 }
 
+// @Summary update user
+// @Security ApiKeyAuth
+// @Tags users
+// @Description update user
+// @ID update user
+// @Accept  json
+// @Produce  json
+// @Param id path integer true "user id"
+// @Param input body user.UpdateUserDTO true "update info"
+// @Success 200 {object} successResponse
+// @Failure 400,403,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /users/{id} [patch]
 func (h *Handler) Update(c echo.Context) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -70,8 +83,6 @@ func (h *Handler) Update(c echo.Context) error {
 		}
 	}
 
-	request.Id = id
-
 	// is user exists
 	if _, err := h.Storage.Users.FindOne(id); err != nil {
 		if err == pg.ErrNoRows {
@@ -87,11 +98,13 @@ func (h *Handler) Update(c echo.Context) error {
 	}
 
 	// ban user
-	if *request.Permissions == permissions.BannedPermission {
-		h.Cache.Set(c.Param("id"), []byte(permissions.BannedPermission))
+	if request.Permissions != nil {
+		if *request.Permissions == permissions.BannedPermission {
+			h.Cache.Set(c.Param("id"), []byte(permissions.BannedPermission))
+		}
 	}
 
-	if err := h.Storage.Users.Update(&request); err != nil {
+	if err := h.Storage.Users.Update(id, &request); err != nil {
 		h.Router.Logger.Error(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": err.Error(),
@@ -103,6 +116,17 @@ func (h *Handler) Update(c echo.Context) error {
 	})
 }
 
+// @Summary delete user
+// @Security ApiKeyAuth
+// @Tags users
+// @Description delete user
+// @ID delete user
+// @Produce  json
+// @Param id path integer true "user id"
+// @Success 200 {object} successResponse
+// @Failure 400,403,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /users/{id} [delete]
 func (h *Handler) Delete(c echo.Context) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -137,6 +161,18 @@ func (h *Handler) Delete(c echo.Context) error {
 	})
 }
 
+// @Summary create user
+// @Security ApiKeyAuth
+// @Tags users
+// @Description create user
+// @ID create user
+// @Accept  json
+// @Produce  json
+// @Param input body user.CreateUserDTO true "create user info"
+// @Success 201 {object} createResponse
+// @Failure 400,403,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /users [post]
 func (h *Handler) Create(c echo.Context) error {
 	request := user.CreateUserDTO{}
 	if err := c.Bind(&request); err != nil {
@@ -202,6 +238,17 @@ func (h *Handler) Create(c echo.Context) error {
 	})
 }
 
+// @Summary get user
+// @Security ApiKeyAuth
+// @Tags users
+// @Description get user
+// @ID get user
+// @Produce  json
+// @Param id path integer true "user id"
+// @Success 200 {object} user.FindUserDTO
+// @Failure 400,403,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /users/{id} [get]
 func (h *Handler) FindOne(c echo.Context) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -229,6 +276,18 @@ func (h *Handler) FindOne(c echo.Context) error {
 	return c.JSON(http.StatusOK, &user)
 }
 
+// @Summary get users
+// @Security ApiKeyAuth
+// @Tags users
+// @Description get users
+// @ID get users
+// @Produce  json
+// @Param limit query integer false "limit"
+// @Param offset query integer false "offset"
+// @Success 200 {object} []user.FindUserDTO
+// @Failure 400,403,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /users [get]
 func (h *Handler) FindAll(c echo.Context) error {
 	var limit, offset int
 	var err error

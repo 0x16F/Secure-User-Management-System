@@ -47,7 +47,6 @@ type UserDTO struct {
 
 type UpdateUserDTO struct {
 	tableName   struct{} `pg:"users"`
-	Id          int64    `json:"id,omitempty"`
 	Name        *string  `json:"name,omitempty"`
 	Surname     *string  `json:"surname,omitempty"`
 	Login       *string  `json:"login,omitempty"`
@@ -66,5 +65,5 @@ type Storager interface {
 	FindAll(limit, offset int) (*[]FindUserDTO, error)
 	Delete(id int64) error
 	Create(dto *UserDTO) (*int64, error)
-	Update(dto *UpdateUserDTO) error
+	Update(id int64, dto *UpdateUserDTO) error
 }

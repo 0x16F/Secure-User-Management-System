@@ -109,15 +109,15 @@ func (mr *MockStoragerMockRecorder) FindOne(id interface{}) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockStorager) Update(dto *user.UpdateUserDTO) error {
+func (m *MockStorager) Update(id int64, dto *user.UpdateUserDTO) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", dto)
+	ret := m.ctrl.Call(m, "Update", id, dto)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockStoragerMockRecorder) Update(dto interface{}) *gomock.Call {
+func (mr *MockStoragerMockRecorder) Update(id, dto interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockStorager)(nil).Update), dto)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockStorager)(nil).Update), id, dto)
 }

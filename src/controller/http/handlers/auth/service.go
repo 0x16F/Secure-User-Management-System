@@ -21,6 +21,18 @@ func NewHandler(router *echo.Echo, jwt jwt.Servicer, cache *bigcache.BigCache, s
 	}
 }
 
+// @Summary login
+// @Tags auth
+// @Description login
+// @ID login
+// @Accept  json
+// @Produce  json
+// @Param input body RequestLoginDTO true "credentials"
+// @Success 200 {object} loginResponse
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /auth/login [post]
 func (h *Handler) Login(c echo.Context) error {
 	request := RequestLoginDTO{}
 
@@ -31,8 +43,8 @@ func (h *Handler) Login(c echo.Context) error {
 	user, err := h.Storage.Users.FindByLogin(request.Login)
 	if err != nil {
 		if err == pg.ErrNoRows {
-			return c.JSON(http.StatusBadRequest, echo.Map{
-				"message": "invalid login or password",
+			return c.JSON(http.StatusNotFound, echo.Map{
+				"message": "user not found",
 			})
 		}
 
@@ -88,6 +100,16 @@ func (h *Handler) Login(c echo.Context) error {
 	})
 }
 
+// @Summary refresh
+// @Tags auth
+// @Description refresh jwt access token
+// @ID refresh
+// @Produce  json
+// @Success 200 {object} refreshResponse
+// @Failure 403 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /auth/refresh [post]
 func (h *Handler) Refresh(c echo.Context) error {
 	cookie, err := c.Cookie("refresh")
 	if err != nil {

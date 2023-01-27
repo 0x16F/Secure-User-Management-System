@@ -45,7 +45,7 @@ func (s *Storage) Create(dto *UserDTO) (*int64, error) {
 	return &u.Id, nil
 }
 
-func (s *Storage) Update(dto *UpdateUserDTO) error {
-	_, err := s.db.Model(dto).WherePK().UpdateNotZero()
+func (s *Storage) Update(id int64, dto *UpdateUserDTO) error {
+	_, err := s.db.Model(dto).Where("id = ?", id).UpdateNotZero()
 	return err
 }

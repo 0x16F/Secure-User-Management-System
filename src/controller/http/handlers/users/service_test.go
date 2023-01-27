@@ -114,14 +114,13 @@ func TestHandler_Update(t *testing.T) {
 			InputUserId: "1",
 			InputBody:   `{"permissions": "banned"}`,
 			ExpectedDTO: &user.UpdateUserDTO{
-				Id:          1,
 				Permissions: &banned,
 			},
 			ExpectedUserId: 1,
 			ExpectedCode:   http.StatusOK,
 			MockCallback: func(s *mock_user.MockStorager, dto *user.UpdateUserDTO, userId int64) {
 				s.EXPECT().FindOne(userId).Return(nil, nil)
-				s.EXPECT().Update(dto).Return(nil)
+				s.EXPECT().Update(userId, dto).Return(nil)
 			},
 		},
 		{

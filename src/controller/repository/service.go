@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"test-project/src/internal/user"
 	"test-project/src/pkg/config"
 
@@ -16,7 +17,7 @@ func NewDatabase() Databaser {
 
 func (s *Database) Connect(cfg *config.Database) (*Storage, error) {
 	db := pg.Connect(&pg.Options{
-		Addr:     cfg.Host,
+		Addr:     fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
 		Database: cfg.Schema,
 		User:     cfg.User,
 		Password: cfg.Password,

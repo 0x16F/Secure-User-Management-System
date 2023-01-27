@@ -1,0 +1,365 @@
+basePath: /
+definitions:
+  auth.RequestLoginDTO:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  auth.errorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  auth.loginResponse:
+    properties:
+      access:
+        type: string
+    type: object
+  auth.refreshResponse:
+    properties:
+      access:
+        type: string
+    type: object
+  user.CreateUserDTO:
+    properties:
+      birthday:
+        type: integer
+      login:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      permissions:
+        type: string
+      surname:
+        type: string
+    type: object
+  user.FindUserDTO:
+    properties:
+      birthday:
+        type: integer
+      id:
+        type: integer
+      login:
+        type: string
+      name:
+        type: string
+      permissions:
+        type: string
+      surname:
+        type: string
+    type: object
+  user.UpdateUserDTO:
+    properties:
+      birthday:
+        type: integer
+      login:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      permissions:
+        type: string
+      surname:
+        type: string
+    type: object
+  users.createResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  users.errorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  users.successResponse:
+    properties:
+      message:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Just solving a test task
+  title: Test Project
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: login
+      operationId: login
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RequestLoginDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.loginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/auth.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/auth.errorResponse'
+      summary: login
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      description: refresh jwt access token
+      operationId: refresh
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.refreshResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/auth.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/auth.errorResponse'
+      summary: refresh
+      tags:
+      - auth
+  /users:
+    get:
+      description: get users
+      operationId: get users
+      parameters:
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/user.FindUserDTO'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: get users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: create user
+      operationId: create user
+      parameters:
+      - description: create user info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateUserDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/users.createResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: create user
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      description: delete user
+      operationId: delete user
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.successResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: delete user
+      tags:
+      - users
+    get:
+      description: get user
+      operationId: get user
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.FindUserDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: get user
+      tags:
+      - users
+    patch:
+      consumes:
+      - application/json
+      description: update user
+      operationId: update user
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: update info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateUserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.successResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/users.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: update user
+      tags:
+      - users
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

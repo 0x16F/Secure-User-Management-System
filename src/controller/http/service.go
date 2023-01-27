@@ -2,15 +2,16 @@ package http
 
 import (
 	"fmt"
-	"os"
 	"test-project/src/controller/http/handlers"
 	"test-project/src/controller/repository"
 	"test-project/src/pkg/jwt"
-	"time"
 
 	"github.com/allegro/bigcache/v3"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
+
+	_ "test-project/docs"
 )
 
 func NewServer(storage *repository.Storage, cache *bigcache.BigCache, jwt jwt.Servicer) *Server {
@@ -27,6 +28,11 @@ func NewServer(storage *repository.Storage, cache *bigcache.BigCache, jwt jwt.Se
 }
 
 func (s *Server) configureRouters() {
+	// logger middleware
+	s.Router.Use(middleware.Logger())
+
+	s.Router.GET("/swagger/*", echoSwagger.WrapHandler)
+
 	auth := s.Router.Group("/auth")
 	{
 		auth.POST("/login", s.Handlers.Auth.Login)
@@ -44,18 +50,5 @@ func (s *Server) configureRouters() {
 }
 
 func (s *Server) Start(port uint16) error {
-	// logger middleware
-	f, err := os.OpenFile(fmt.Sprintf("logs/%s.log", time.Now().Format("2006-01-02 15-04-05")), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
-
-	s.Router.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: "method=${method}, uri=${uri}, status=${status}\n",
-		Output: f,
-	}))
-
 	return s.Router.Start(fmt.Sprintf(":%d", port))
 }

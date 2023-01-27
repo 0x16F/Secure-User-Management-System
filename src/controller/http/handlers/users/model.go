@@ -21,3 +21,15 @@ type IHandler interface {
 	FindAll(c echo.Context) error
 	CheckPermissions(next echo.HandlerFunc) echo.HandlerFunc
 }
+
+type errorResponse struct {
+	Message string `json:"message"`
+}
+
+type successResponse struct {
+	Message string `json:"message"`
+}
+
+type createResponse struct {
+	Id int64 `json:"id"`
+}

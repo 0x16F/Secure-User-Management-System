@@ -25,3 +25,15 @@ type RequestLoginDTO struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
 }
+
+type errorResponse struct {
+	Message string `json:"message"`
+}
+
+type loginResponse struct {
+	Access string `json:"access"`
+}
+
+type refreshResponse struct {
+	Access string `json:"access"`
+}

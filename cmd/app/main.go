@@ -9,26 +9,46 @@ import (
 	"time"
 
 	"github.com/allegro/bigcache/v3"
+	"github.com/spf13/viper"
 )
+
+// @title Test Project
+// @version 1.0
+// @description Just solving a test task
+
+// @host localhost:8080
+// @BasePath /
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 
 func main() {
 	// init config
-	config, err := config.NewConfig()
-	if err != nil {
+	if err := config.NewConfig(); err != nil {
 		panic(err)
 	}
 
 	// init jwt service
 	jwtService := jwt.NewService(&jwt.Service{
-		AccessSecret:  config.JWT.AccessSecret,
-		RefreshSecret: config.JWT.RefreshSecret,
+		AccessSecret:  viper.GetString("jwt.access_secret"),
+		RefreshSecret: viper.GetString("jwt.refresh_secret"),
 	})
 
 	// init database
 	database := repository.NewDatabase()
 
+	cfg := &config.Database{
+		Host:     viper.GetString("database.host"),
+		Port:     viper.GetUint16("database.port"),
+		Schema:   viper.GetString("database.schema"),
+		User:     viper.GetString("database.user"),
+		Password: viper.GetString("database.password"),
+	}
+
 	// connect to database
-	storage, err := database.Connect(&config.Database)
+	storage, err := database.Connect(cfg)
+
 	if err != nil {
 		panic(err)
 	}
@@ -43,7 +63,7 @@ func main() {
 	server := http.NewServer(storage, cache, jwtService)
 
 	// start listening
-	if err := server.Start(config.HTTP.Port); err != nil {
+	if err := server.Start(viper.GetUint16("http.port")); err != nil {
 		panic(err)
 	}
 }
