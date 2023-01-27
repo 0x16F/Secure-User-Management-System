@@ -2,6 +2,8 @@ package user
 
 import "github.com/go-pg/pg/v10"
 
+//go:generate mockgen -source=model.go -destination=mocks/mock.go
+
 type User struct {
 	tableName   struct{} `pg:"users"`
 	Id          int64    `json:"id"`

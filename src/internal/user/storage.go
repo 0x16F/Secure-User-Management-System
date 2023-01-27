@@ -8,7 +8,7 @@ func (s *Storage) FindOne(id int64) (*FindUserDTO, error) {
 
 func (s *Storage) FindByLogin(login string) (*User, error) {
 	user := &User{}
-	err := s.db.Model(user).Where("login = ?", login).Select()
+	err := s.db.Model(user).Where("lower(login) = lower(?)", login).Select()
 	return user, err
 }
 

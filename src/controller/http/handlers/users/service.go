@@ -2,12 +2,11 @@ package users
 
 import (
 	"net/http"
-	"regexp"
 	"strconv"
 	"test-project/src/controller/repository"
 	"test-project/src/internal/permissions"
 	"test-project/src/internal/user"
-	"test-project/src/pkg/utils"
+	"test-project/src/pkg/validate"
 
 	"github.com/allegro/bigcache/v3"
 	"github.com/go-pg/pg/v10"
@@ -30,6 +29,49 @@ func (h *Handler) Update(c echo.Context) error {
 		})
 	}
 
+	request := user.UpdateUserDTO{}
+	if err := c.Bind(&request); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"message": err.Error(),
+		})
+	}
+
+	// is permission valid?
+	if request.Permissions != nil {
+		if !validate.Permission(*request.Permissions) {
+			return c.JSON(http.StatusBadRequest, echo.Map{
+				"message": "invalid permission",
+			})
+		}
+	}
+
+	if request.Login != nil {
+		// is login valid?
+		if !validate.Login(*request.Login) {
+			return c.JSON(http.StatusBadRequest, echo.Map{
+				"message": "incorrect login, use only latin symbols and arabian numbers",
+			})
+		}
+
+		// is login length valid?
+		if !validate.LoginLenght(*request.Login) {
+			return c.JSON(http.StatusBadRequest, echo.Map{
+				"message": "incorrect login length",
+			})
+		}
+	}
+
+	// is password length valid?
+	if request.Password != nil {
+		if !validate.PasswordLength(*request.Password) {
+			return c.JSON(http.StatusBadRequest, echo.Map{
+				"message": "incorrect password length",
+			})
+		}
+	}
+
+	request.Id = id
+
 	// is user exists
 	if _, err := h.Storage.Users.FindOne(id); err != nil {
 		if err == pg.ErrNoRows {
@@ -39,20 +81,10 @@ func (h *Handler) Update(c echo.Context) error {
 		}
 
 		h.Router.Logger.Error(err)
-
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": err.Error(),
 		})
 	}
-
-	request := user.UpdateUserDTO{}
-	if err := c.Bind(&request); err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "bad request",
-		})
-	}
-
-	request.Id = id
 
 	// ban user
 	if *request.Permissions == permissions.BannedPermission {
@@ -61,7 +93,6 @@ func (h *Handler) Update(c echo.Context) error {
 
 	if err := h.Storage.Users.Update(&request); err != nil {
 		h.Router.Logger.Error(err)
-
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": err.Error(),
 		})
@@ -81,22 +112,21 @@ func (h *Handler) Delete(c echo.Context) error {
 	}
 
 	if _, err := h.Storage.Users.FindOne(id); err != nil {
-		if err == pg.ErrNoRows {
+		switch err {
+		case pg.ErrNoRows:
 			return c.JSON(http.StatusNotFound, echo.Map{
 				"message": "user not found",
 			})
+		default:
+			h.Router.Logger.Error(err)
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"message": err.Error(),
+			})
 		}
-
-		h.Router.Logger.Error(err)
-
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": err.Error(),
-		})
 	}
 
 	if err := h.Storage.Users.Delete(id); err != nil {
 		h.Router.Logger.Error(err)
-
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": err.Error(),
 		})
@@ -109,41 +139,51 @@ func (h *Handler) Delete(c echo.Context) error {
 
 func (h *Handler) Create(c echo.Context) error {
 	request := user.CreateUserDTO{}
-
 	if err := c.Bind(&request); err != nil {
 		h.Router.Logger.Error(err)
-
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": err.Error(),
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"message": "bad request",
 		})
 	}
 
 	// is permission valid?
-	if !utils.Contains(permissions.ArrayOfPermissions, request.Permissions) {
+	if !validate.Permission(request.Permissions) {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"message": "invalid permission",
 		})
 	}
 
 	// is login valid?
-	if !regexp.MustCompile(`(?m)^[A-Za-z0-9]+$`).Match([]byte(request.Login)) {
+	if !validate.Login(request.Login) {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"message": "incorrect login, use only latin symbols and arabian numbers",
 		})
 	}
 
-	if len(request.Login) < 3 || len(request.Login) > 24 {
+	// is login length valid?
+	if !validate.LoginLenght(request.Login) {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "incorrect login length. min: 3, max: 24",
+			"message": "incorrect login length",
 		})
 	}
 
-	// is password valid?
-	passwordLength := len(request.Password)
-
-	if passwordLength < 8 || passwordLength > 64 {
+	// is password length valid?
+	if !validate.PasswordLength(request.Password) {
 		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "incorrect password length. min: 8, max: 64",
+			"message": "incorrect password length",
+		})
+	}
+
+	// is user already exists?
+	if _, err := h.Storage.Users.FindByLogin(request.Login); err != nil {
+		if err != pg.ErrNoRows {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"message": err.Error(),
+			})
+		}
+	} else {
+		return c.JSON(http.StatusConflict, echo.Map{
+			"message": "user is already exists",
 		})
 	}
 
@@ -152,7 +192,6 @@ func (h *Handler) Create(c echo.Context) error {
 	id, err := h.Storage.Users.Create(u)
 	if err != nil {
 		h.Router.Logger.Error(err)
-
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": err.Error(),
 		})
@@ -167,7 +206,6 @@ func (h *Handler) FindOne(c echo.Context) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		h.Router.Logger.Error(err)
-
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"message": err.Error(),
 		})
@@ -175,62 +213,47 @@ func (h *Handler) FindOne(c echo.Context) error {
 
 	user, err := h.Storage.Users.FindOne(id)
 	if err != nil {
-		if err == pg.ErrNoRows {
+		switch err {
+		case pg.ErrNoRows:
 			return c.JSON(http.StatusNotFound, echo.Map{
 				"message": "user not found",
 			})
+		default:
+			h.Router.Logger.Error(err)
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"message": err.Error(),
+			})
 		}
-
-		h.Router.Logger.Error(err)
-
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": err.Error(),
-		})
 	}
 
 	return c.JSON(http.StatusOK, &user)
 }
 
 func (h *Handler) FindAll(c echo.Context) error {
+	var limit, offset int
 	var err error
 
-	limit := c.QueryParam("limit")
-	limitInt := 10
-
-	if limit != "" {
-		limitInt, err = strconv.Atoi(limit)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, echo.Map{
-				"message": "failed to parse limit",
-			})
-		}
+	if limit, err = strconv.Atoi(c.QueryParam("limit")); err != nil {
+		limit = 10
 	}
 
-	offset := c.QueryParam("offset")
-	offsetInt := 0
-
-	if offset != "" {
-		limitInt, err = strconv.Atoi(offset)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, echo.Map{
-				"message": "failed to parse offset",
-			})
-		}
+	if offset, err = strconv.Atoi(c.QueryParam("offset")); err != nil {
+		limit = 10
 	}
 
-	users, err := h.Storage.Users.FindAll(limitInt, offsetInt)
+	users, err := h.Storage.Users.FindAll(limit, offset)
 	if err != nil {
-		if err == pg.ErrNoRows {
+		switch err {
+		case pg.ErrNoRows:
 			return c.JSON(http.StatusNotFound, echo.Map{
 				"message": "users not found",
 			})
+		default:
+			h.Router.Logger.Error(err)
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"message": err.Error(),
+			})
 		}
-
-		h.Router.Logger.Error(err)
-
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": err.Error(),
-		})
 	}
 
 	return c.JSON(http.StatusOK, &users)

@@ -2,6 +2,8 @@ module test-project
 
 go 1.19
 
+require github.com/golang/mock v1.6.0
+
 require (
 	github.com/allegro/bigcache/v3 v3.1.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
