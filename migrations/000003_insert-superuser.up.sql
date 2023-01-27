@@ -13,7 +13,7 @@ VALUES
         'admin',
         'admin',
         'admin',
-        'MTzwVDyo32scd8cJ4/VIAJEyl+P1y/nPhpOfE6VNrlN2X3HUcr+v3zG8sv10+A9ATTV/0qi6XLNdy7NpVmc8JQ==',
+        '1dBSJjXPUjrzOYB81//MUbmokk36XKXxcRvUbH7w0XPtR3W5yY28eoZmEyXkZw7WFHfabqqM4e3QUY4N/7o52Q==',
         '9WFmYtV2',
         'admin',
         0
