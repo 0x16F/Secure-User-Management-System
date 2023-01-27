@@ -4,16 +4,30 @@ services:
   db:
     image: postgres
     restart: always
+    container_name: db
     environment:
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: test_project
 
     ports:
       - 5430:5432
-  test-app:
+  migrate:
+    container_name: migrate
+    environment:
+      POSTGRES_PASSWORD: 123456
+    build:
+      dockerfile: Dockerfile-migrate
+    command: /bin/ash ./wait-for-postgres.sh db ./migrate
+    depends_on:
+      - db
+
+  backend:
+    container_name: backend
+    environment:
+      POSTGRES_PASSWORD: 123456
     build: .
-    command: ./app
+    command: /bin/ash ./wait-for-postgres.sh db ./app
     ports:
       - 8080:8080
     depends_on:
-      - db
+      - migrate

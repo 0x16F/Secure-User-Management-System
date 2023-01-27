@@ -1,0 +1,16 @@
+{
+    "http": {
+        "port": 8080
+    },
+    "database": {
+        "host": "db",
+        "port": 5432,
+        "schema": "test_project",
+        "user": "postgres",
+        "password": "123456"
+    },
+    "jwt": {
+        "access_secret": "fH7vsnSwiPHafaH5KQ4HzYA5Rf39UAi7",
+        "refresh_secret": "bFYgPDjduY2GMRtQuWXQ6Aeh8DLfsA7p"
+    }
+}
