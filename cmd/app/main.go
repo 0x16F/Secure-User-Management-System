@@ -52,11 +52,15 @@ func main() {
 		panic(err)
 	}
 
+	defer database.Close()
+
 	// init cache (we can use redis, but there is no need)
 	cache, err := bigcache.New(context.Background(), bigcache.DefaultConfig(10*time.Minute))
 	if err != nil {
 		panic(err)
 	}
+
+	defer cache.Close()
 
 	// init http server
 	server := http.NewServer(storage, cache, jwtService)

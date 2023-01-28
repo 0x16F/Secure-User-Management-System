@@ -11,12 +11,13 @@ import (
 
 func NewDatabase() Databaser {
 	return &Database{
+		db:  nil,
 		ctx: context.Background(),
 	}
 }
 
 func (s *Database) Connect(cfg *config.Database) (*Storage, error) {
-	db := pg.Connect(&pg.Options{
+	s.db = pg.Connect(&pg.Options{
 		Addr:                  fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
 		Database:              cfg.Schema,
 		User:                  cfg.User,
@@ -25,12 +26,20 @@ func (s *Database) Connect(cfg *config.Database) (*Storage, error) {
 		RetryStatementTimeout: true,
 	})
 
-	if err := db.Ping(s.ctx); err != nil {
+	if err := s.db.Ping(s.ctx); err != nil {
 		return nil, err
 	}
 
 	return &Storage{
-		db:    db,
-		Users: user.NewStorage(db),
+		db:    s.db,
+		Users: user.NewStorage(s.db),
 	}, nil
+}
+
+func (s *Database) Close() error {
+	if s.db != nil {
+		return s.db.Close()
+	}
+
+	return nil
 }

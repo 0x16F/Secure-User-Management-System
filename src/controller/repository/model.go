@@ -9,6 +9,7 @@ import (
 )
 
 type Database struct {
+	db  *pg.DB
 	ctx context.Context
 }
 
@@ -19,4 +20,5 @@ type Storage struct {
 
 type Databaser interface {
 	Connect(cfg *config.Database) (*Storage, error)
+	Close() error
 }

@@ -3,7 +3,6 @@ package user
 import (
 	"fmt"
 	"test-project/src/pkg/utils"
-	"test-project/src/pkg/validate"
 
 	"github.com/go-pg/pg/v10"
 )
@@ -21,12 +20,12 @@ func (s *Storage) FindByLogin(login string) (*User, error) {
 }
 
 func (s *Storage) FindAll(limit, offset int, order string, filters *FindUsersFilters) (*[]FindUserDTO, int, error) {
-	if order == "" {
-		order = validate.OrderAsc
-	}
-
 	users := make([]FindUserDTO, 0)
-	query := s.db.Model(&users).Limit(limit).Offset(offset).Order(fmt.Sprintf("id %s", order))
+	query := s.db.Model(&users).Limit(limit).Offset(offset)
+
+	if order != "" {
+		query.Order(fmt.Sprintf("id %s", order))
+	}
 
 	if filters != nil {
 		if *filters != (FindUsersFilters{}) {
