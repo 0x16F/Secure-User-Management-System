@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"test-project/src/pkg/utils"
 	"test-project/src/pkg/validate"
+
+	"github.com/go-pg/pg/v10"
 )
 
 func (s *Storage) FindOne(id int64) (*FindUserDTO, error) {
@@ -56,8 +58,17 @@ func (s *Storage) FindAll(limit, offset int, order string, filters *FindUsersFil
 
 func (s *Storage) Delete(id int64) error {
 	user := User{}
-	_, err := s.db.Model(&user).Where("id = ?", id).Delete()
-	return err
+
+	result, err := s.db.Model(&user).Where("id = ?", id).Delete()
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return pg.ErrNoRows
+	}
+
+	return nil
 }
 
 func (s *Storage) Create(dto *UserDTO) (*int64, error) {
@@ -84,6 +95,14 @@ func (s *Storage) Update(id int64, dto *UpdateUserDTO) error {
 		u.Password, _ = utils.HashString(u.Password, u.Salt)
 	}
 
-	_, err = s.db.Model(u).Where("id = ?", id).UpdateNotZero()
-	return err
+	result, err := s.db.Model(u).Where("id = ?", id).UpdateNotZero()
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return pg.ErrNoRows
+	}
+
+	return nil
 }

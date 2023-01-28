@@ -89,18 +89,6 @@ func (h *Handler) Update(c echo.Context) error {
 		}
 	}
 
-	// is user exists
-	if _, err := h.Storage.Users.FindOne(id); err != nil {
-		if err == pg.ErrNoRows {
-			notFoundError := response.NewAppError(http.StatusNotFound, "User not found", "")
-			return notFoundError.Send(c)
-		}
-
-		h.Router.Logger.Error(err)
-		systemError := response.SystemError("Internal error, try again later", err.Error())
-		return systemError.Send(c)
-	}
-
 	// ban user
 	if request.Permissions != nil {
 		if *request.Permissions == permissions.BannedPermission {
@@ -109,6 +97,11 @@ func (h *Handler) Update(c echo.Context) error {
 	}
 
 	if err := h.Storage.Users.Update(id, &request); err != nil {
+		if err == pg.ErrNoRows {
+			notFoundError := response.NewAppError(http.StatusNotFound, "User not found", "")
+			return notFoundError.Send(c)
+		}
+
 		h.Router.Logger.Error(err)
 		systemError := response.SystemError("Internal error, try again later", err.Error())
 		return systemError.Send(c)
@@ -139,18 +132,12 @@ func (h *Handler) Delete(c echo.Context) error {
 		return validationErr.Send(c)
 	}
 
-	if _, err := h.Storage.Users.FindOne(id); err != nil {
+	if err := h.Storage.Users.Delete(id); err != nil {
 		if err == pg.ErrNoRows {
 			notFoundError := response.NewAppError(http.StatusNotFound, "User not found", "")
 			return notFoundError.Send(c)
 		}
 
-		h.Router.Logger.Error(err)
-		systemError := response.SystemError("Internal error, try again later", err.Error())
-		return systemError.Send(c)
-	}
-
-	if err := h.Storage.Users.Delete(id); err != nil {
 		h.Router.Logger.Error(err)
 		systemError := response.SystemError("Internal error, try again later", err.Error())
 		return systemError.Send(c)
