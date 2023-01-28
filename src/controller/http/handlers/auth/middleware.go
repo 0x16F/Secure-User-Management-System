@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"test-project/src/controller/http/response"
 	"test-project/src/internal/permissions"
 	headerparser "test-project/src/pkg/header-parser"
+	"test-project/src/pkg/jwt"
 
 	"github.com/allegro/bigcache/v3"
 	"github.com/labstack/echo/v4"
@@ -16,33 +18,29 @@ func (h *Handler) IsAuthorized(next echo.HandlerFunc) echo.HandlerFunc {
 		access := headerparser.GetUserToken(c)
 
 		if access == "" {
-			return c.JSON(http.StatusForbidden, echo.Map{
-				"message": "you need to login",
-			})
+			return response.NewAppError(http.StatusForbidden, "You need to login", "").Send(c)
 		}
 
 		token, err := h.JWT.ParseAccess(access)
 		if err != nil {
-			return c.JSON(http.StatusForbidden, echo.Map{
-				"message": err.Error(),
-			})
+			if err == jwt.ErrExpired {
+				return response.NewAppError(http.StatusForbidden, "Token is expired", err.Error()).Send(c)
+			}
+
+			return response.NewAppError(http.StatusForbidden, "Access token is not valid", err.Error()).Send(c)
 		}
 
 		result, err := h.Cache.Get(fmt.Sprint(token.Id))
 		if err != nil {
 			if err != bigcache.ErrEntryNotFound {
 				h.Router.Logger.Error(err)
-
-				return c.JSON(http.StatusInternalServerError, echo.Map{
-					"message": err.Error(),
-				})
+				systemError := response.SystemError("Internal error, try again later", err.Error())
+				return systemError.Send(c)
 			}
 		}
 
 		if token.Permissions == permissions.BannedPermission || bytes.Equal(result, []byte(permissions.BannedPermission)) {
-			return c.JSON(http.StatusForbidden, echo.Map{
-				"message": "you're banned",
-			})
+			return response.NewAppError(http.StatusForbidden, "You are banned", "").Send(c)
 		}
 
 		headerparser.SetUserId(c, fmt.Sprint(token.Id))
