@@ -120,7 +120,6 @@ func TestHandler_Update(t *testing.T) {
 			ExpectedUserId: 1,
 			ExpectedCode:   http.StatusOK,
 			MockCallback: func(s *mock_user.MockStorager, dto *user.UpdateUserDTO, userId int64) {
-				s.EXPECT().FindOne(userId).Return(nil, nil)
 				s.EXPECT().Update(userId, dto).Return(nil)
 			},
 		},
@@ -137,13 +136,16 @@ func TestHandler_Update(t *testing.T) {
 			ExpectedCode: http.StatusBadRequest,
 		},
 		{
-			Name:           "User not found",
-			InputUserId:    "1",
-			InputBody:      `{"permissions": "banned"}`,
+			Name:        "User not found",
+			InputUserId: "1",
+			InputBody:   `{"permissions": "banned"}`,
+			ExpectedDTO: &user.UpdateUserDTO{
+				Permissions: &banned,
+			},
 			ExpectedUserId: 1,
 			ExpectedCode:   http.StatusNotFound,
 			MockCallback: func(s *mock_user.MockStorager, dto *user.UpdateUserDTO, userId int64) {
-				s.EXPECT().FindOne(userId).Return(nil, pg.ErrNoRows)
+				s.EXPECT().Update(userId, dto).Return(pg.ErrNoRows)
 			},
 		},
 		{
@@ -226,7 +228,6 @@ func TestHandler_Delete(t *testing.T) {
 			ExptectedUserId: 1,
 			ExpectedCode:    http.StatusOK,
 			MockCallback: func(s *mock_user.MockStorager, id int64) {
-				s.EXPECT().FindOne(id).Return(nil, nil)
 				s.EXPECT().Delete(id).Return(nil)
 			},
 		},
@@ -241,7 +242,7 @@ func TestHandler_Delete(t *testing.T) {
 			ExptectedUserId: 1,
 			ExpectedCode:    http.StatusNotFound,
 			MockCallback: func(s *mock_user.MockStorager, id int64) {
-				s.EXPECT().FindOne(id).Return(nil, pg.ErrNoRows)
+				s.EXPECT().Delete(id).Return(pg.ErrNoRows)
 			},
 		},
 	}
