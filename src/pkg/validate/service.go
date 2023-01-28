@@ -23,3 +23,7 @@ func PasswordLength(password string) bool {
 func Permission(permission string) bool {
 	return utils.Contains(permissions.ArrayOfPermissions, permission)
 }
+
+func Limit(limit int) bool {
+	return limit >= MinLimit && limit <= MaxLimit
+}

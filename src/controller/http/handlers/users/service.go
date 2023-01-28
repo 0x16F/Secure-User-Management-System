@@ -282,15 +282,19 @@ func (h *Handler) FindOne(c echo.Context) error {
 // @Failure 500 {object} response.AppError
 // @Router /users [get]
 func (h *Handler) FindAll(c echo.Context) error {
-	var limit, offset int
+	limit, offset := validate.MaxLimit, 0
 	var err error
 
 	if limit, err = strconv.Atoi(c.QueryParam("limit")); err != nil {
-		limit = 10
+		limit = validate.MaxLimit
+	}
+
+	if !validate.Limit(limit) {
+		limit = validate.MaxLimit
 	}
 
 	if offset, err = strconv.Atoi(c.QueryParam("offset")); err != nil {
-		limit = 10
+		offset = 0
 	}
 
 	users, count, err := h.Storage.Users.FindAll(limit, offset)
