@@ -48,7 +48,6 @@ func main() {
 
 	// connect to database
 	storage, err := database.Connect(cfg)
-
 	if err != nil {
 		panic(err)
 	}

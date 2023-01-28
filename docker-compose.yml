@@ -17,7 +17,7 @@ services:
       POSTGRES_PASSWORD: 123456
     build:
       dockerfile: Dockerfile-migrate
-    command: /bin/ash ./wait-for-postgres.sh db ./migrate
+    command: ./migrate
     depends_on:
       - db
 
@@ -26,7 +26,7 @@ services:
     environment:
       POSTGRES_PASSWORD: 123456
     build: .
-    command: /bin/ash ./wait-for-postgres.sh db ./app
+    command: ./app
     ports:
       - 8080:8080
     depends_on:

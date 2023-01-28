@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"test-project/src/pkg/config"
+	"time"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -27,12 +28,24 @@ func main() {
 
 	url := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Schema)
 
-	m, err := migrate.New("file://migrations", url)
-	if err != nil {
-		log.Fatal(err)
-	}
+	attempts := 0
 
-	if err := m.Up(); err != nil {
-		log.Println(err)
+	for attempts <= 4 {
+		m, err := migrate.New("file://migrations", url)
+		if err != nil && attempts != 4 {
+			attempts += 1
+			time.Sleep(3 * time.Second)
+			continue
+		}
+
+		if attempts == 4 {
+			log.Fatal(err)
+		}
+
+		if err := m.Up(); err != nil {
+			log.Println(err)
+		}
+
+		break
 	}
 }

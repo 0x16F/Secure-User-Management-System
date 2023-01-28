@@ -9,12 +9,9 @@ WORKDIR /
 
 ADD /configs /configs
 ADD /migrations /migrations
-ADD ./wait-for-postgres.sh ./
 
 RUN apk update
 RUN apk add postgresql-client
-
-RUN chmod +x wait-for-postgres.sh
 
 COPY --from=builder /migrate /migrate
 CMD ["./migrate"]

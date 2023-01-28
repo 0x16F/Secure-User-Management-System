@@ -1,5 +1,3 @@
 makefile
 .git
 .dockerignore
-makefile.example
-/configs/config.json.example
