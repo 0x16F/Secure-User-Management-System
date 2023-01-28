@@ -20,6 +20,7 @@
     <li><a href="https://github.com/allegro/bigcache">bigcache</a> - чтобы в случае бана пользователя, он банился сразу, а не по истечению времени жизни токена</li>
     <li><a href="https://github.com/golang-migrate/migrate">Migrate</a> - миграции бд</li>
     <li><a href="https://github.com/spf13/viper">viper</a> - чтение данных из конфига</li>
+    <li><a href="https://github.com/go-pg/pg">pg</a> - для работы с БД</li>
 </ul>
 
 <h2>Данные от админки</h2>
