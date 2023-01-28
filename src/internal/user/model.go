@@ -4,6 +4,10 @@ import "github.com/go-pg/pg/v10"
 
 //go:generate mockgen -source=model.go -destination=mocks/mock.go
 
+const (
+	SaltLength = 8
+)
+
 type User struct {
 	tableName   struct{} `pg:"users"`
 	Id          int64    `json:"id"`

@@ -7,7 +7,7 @@ import (
 )
 
 func NewUser(dto *CreateUserDTO) *UserDTO {
-	salt := utils.GenerateString(8)
+	salt := utils.GenerateString(SaltLength)
 	hash, _ := utils.HashString(dto.Password, salt)
 
 	user := &UserDTO{

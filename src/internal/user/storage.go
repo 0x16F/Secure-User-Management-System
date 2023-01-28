@@ -26,12 +26,6 @@ func (s *Storage) FindAll(limit, offset int, order string, filters *FindUsersFil
 	users := make([]FindUserDTO, 0)
 	query := s.db.Model(&users).Limit(limit).Offset(offset).Order(fmt.Sprintf("id %s", order))
 
-	// Name        *string  `json:"name,omitempty" default:"Иван"`
-	// Surname     *string  `json:"surname,omitempty" default:"Иванов"`
-	// Login       *string  `json:"login,omitempty" default:"Ivanov"`
-	// Permissions *string  `json:"permissions,omitempty" enums:"admin,read-only,banned"`
-	// Birthday    *int64   `json:"birthday,omitempty"`
-
 	if filters != nil {
 		if *filters != (FindUsersFilters{}) {
 			if filters.Name != "" {
@@ -76,6 +70,16 @@ func (s *Storage) Create(dto *UserDTO) (*int64, error) {
 }
 
 func (s *Storage) Update(id int64, dto *UpdateUserDTO) error {
-	_, err := s.db.Model(dto).Where("id = ?", id).UpdateNotZero()
+	u, err := utils.TypeConverter[User](&dto)
+	if err != nil {
+		return err
+	}
+
+	if u.Password != "" {
+		u.Salt = utils.GenerateString(SaltLength)
+		u.Password, _ = utils.HashString(u.Password, u.Salt)
+	}
+
+	_, err = s.db.Model(u).Where("id = ?", id).UpdateNotZero()
 	return err
 }
