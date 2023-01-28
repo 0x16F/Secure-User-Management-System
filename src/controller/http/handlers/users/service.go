@@ -9,6 +9,7 @@ import (
 	"test-project/src/internal/permissions"
 	"test-project/src/internal/user"
 	"test-project/src/pkg/validate"
+	"time"
 
 	"github.com/allegro/bigcache/v3"
 	"github.com/go-pg/pg/v10"
@@ -276,7 +277,8 @@ func (h *Handler) FindOne(c echo.Context) error {
 // @Param name query string false "name" default()
 // @Param surname query string false "surname" default()
 // @Param login query string false "login" default()
-// @Param permissions query string false "permissions" default()
+// @Param permissions query string false "permissions" Enums(read-only, banned, admin) default()
+// @Param birthday query string false "birthday" default() Format(date)
 // @Param offset query integer false "offset" default(0)
 // @Success 200 {object} FindUsersResponse
 // @Failure 400,403,404 {object} response.AppError
@@ -313,6 +315,18 @@ func (h *Handler) FindAll(c echo.Context) error {
 		Surname:     c.QueryParam("surname"),
 		Login:       c.QueryParam("login"),
 		Permissions: c.QueryParam("permissions"),
+		Birthday:    c.QueryParam("birthday"),
+	}
+
+	// is birthday valid?
+	if filters.Birthday != "" {
+		if _, err := time.Parse("2006-01-02", filters.Birthday); err != nil {
+			validationErr := response.BadRequestError("Bad request", "Incorrect birthday format")
+			validationErr.WithParams(response.Map{
+				"birthday": "this field should be date, like a '2006-02-16'",
+			})
+			return validationErr.Send(c)
+		}
 	}
 
 	users, count, err := h.Storage.Users.FindAll(limit, offset, order, filters)

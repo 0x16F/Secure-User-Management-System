@@ -14,19 +14,19 @@ type User struct {
 	Name        string   `json:"name" default:"Иван"`
 	Surname     string   `json:"surname" default:"Иванов"`
 	Login       string   `json:"login" default:"Ivanov"`
-	Password    string   `json:"password" default:"password"`
+	Password    string   `json:"password" default:"password" format:"password"`
 	Salt        string   `json:"salt"`
 	Permissions string   `json:"permissions" enums:"admin,read-only,banned"`
-	Birthday    int64    `json:"birthday"`
+	Birthday    string   `json:"birthday" default:"1970-01-01" format:"date"`
 }
 
 type CreateUserDTO struct {
 	Name        string `json:"name" default:"Иван"`
 	Surname     string `json:"surname" default:"Иванов"`
 	Login       string `json:"login" default:"Ivanov"`
-	Password    string `json:"password" default:"password"`
+	Password    string `json:"password" default:"password" format:"password"`
 	Permissions string `json:"permissions" enums:"admin,read-only,banned"`
-	Birthday    int64  `json:"birthday"`
+	Birthday    string `json:"birthday" default:"1970-01-01" format:"date"`
 }
 
 type FindUserDTO struct {
@@ -36,17 +36,17 @@ type FindUserDTO struct {
 	Surname     string   `json:"surname" default:"Иванов"`
 	Login       string   `json:"login" default:"Ivanov"`
 	Permissions string   `json:"permissions" enums:"admin,read-only,banned"`
-	Birthday    int64    `json:"birthday"`
+	Birthday    string   `json:"birthday" default:"1970-01-01" format:"date"`
 }
 
 type UserDTO struct {
 	Name        string `json:"name" default:"Иван"`
 	Surname     string `json:"surname" default:"Иванов"`
 	Login       string `json:"login" default:"Ivanov"`
-	Password    string `json:"password" default:"password"`
+	Password    string `json:"password" default:"password" format:"password"`
 	Salt        string `json:"salt"`
 	Permissions string `json:"permissions" enums:"admin,read-only,banned"`
-	Birthday    int64  `json:"birthday"`
+	Birthday    string `json:"birthday" default:"1970-01-01" format:"date"`
 }
 
 type UpdateUserDTO struct {
@@ -54,9 +54,9 @@ type UpdateUserDTO struct {
 	Name        *string  `json:"name,omitempty" default:"Иван"`
 	Surname     *string  `json:"surname,omitempty" default:"Иванов"`
 	Login       *string  `json:"login,omitempty" default:"Ivanov"`
-	Password    *string  `json:"password,omitempty" default:"password"`
+	Password    *string  `json:"password,omitempty" default:"password" format:"password"`
 	Permissions *string  `json:"permissions,omitempty" enums:"admin,read-only,banned"`
-	Birthday    *int64   `json:"birthday,omitempty"`
+	Birthday    *string  `json:"birthday,omitempty" default:"1970-01-01" format:"date"`
 }
 
 type FindUsersFilters struct {
@@ -64,6 +64,7 @@ type FindUsersFilters struct {
 	Surname     string `json:"surname,omitempty" default:"Иванов"`
 	Login       string `json:"login,omitempty" default:"Ivanov"`
 	Permissions string `json:"permissions,omitempty" enums:"admin,read-only,banned"`
+	Birthday    string `json:"birthday,omitempty" default:"1970-01-01" format:"date"`
 }
 
 type Storage struct {

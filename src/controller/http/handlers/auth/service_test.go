@@ -49,7 +49,7 @@ func TestHandler_Login(t *testing.T) {
 					Password:    hash,
 					Salt:        salt,
 					Permissions: "admin",
-					Birthday:    0,
+					Birthday:    "1970-01-01",
 				}, nil)
 			},
 		},
@@ -71,7 +71,7 @@ func TestHandler_Login(t *testing.T) {
 					Password:    hash,
 					Salt:        salt,
 					Permissions: "admin",
-					Birthday:    0,
+					Birthday:    "1970-01-01",
 				}, nil)
 			},
 		},

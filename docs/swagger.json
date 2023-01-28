@@ -170,10 +170,23 @@
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "read-only",
+                            "banned",
+                            "admin"
+                        ],
                         "type": "string",
                         "default": "",
                         "description": "permissions",
                         "name": "permissions",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "date",
+                        "default": "",
+                        "description": "birthday",
+                        "name": "birthday",
                         "in": "query"
                     },
                     {
@@ -519,7 +532,9 @@
             "type": "object",
             "properties": {
                 "birthday": {
-                    "type": "integer"
+                    "type": "string",
+                    "format": "date",
+                    "default": "1970-01-01"
                 },
                 "login": {
                     "type": "string",
@@ -531,6 +546,7 @@
                 },
                 "password": {
                     "type": "string",
+                    "format": "password",
                     "default": "password"
                 },
                 "permissions": {
@@ -551,7 +567,9 @@
             "type": "object",
             "properties": {
                 "birthday": {
-                    "type": "integer"
+                    "type": "string",
+                    "format": "date",
+                    "default": "1970-01-01"
                 },
                 "id": {
                     "type": "integer"
@@ -582,7 +600,9 @@
             "type": "object",
             "properties": {
                 "birthday": {
-                    "type": "integer"
+                    "type": "string",
+                    "format": "date",
+                    "default": "1970-01-01"
                 },
                 "login": {
                     "type": "string",
@@ -594,6 +614,7 @@
                 },
                 "password": {
                     "type": "string",
+                    "format": "password",
                     "default": "password"
                 },
                 "permissions": {

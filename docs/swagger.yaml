@@ -34,7 +34,9 @@ definitions:
   user.CreateUserDTO:
     properties:
       birthday:
-        type: integer
+        default: "1970-01-01"
+        format: date
+        type: string
       login:
         default: Ivanov
         type: string
@@ -43,6 +45,7 @@ definitions:
         type: string
       password:
         default: password
+        format: password
         type: string
       permissions:
         enum:
@@ -57,7 +60,9 @@ definitions:
   user.FindUserDTO:
     properties:
       birthday:
-        type: integer
+        default: "1970-01-01"
+        format: date
+        type: string
       id:
         type: integer
       login:
@@ -79,7 +84,9 @@ definitions:
   user.UpdateUserDTO:
     properties:
       birthday:
-        type: integer
+        default: "1970-01-01"
+        format: date
+        type: string
       login:
         default: Ivanov
         type: string
@@ -88,6 +95,7 @@ definitions:
         type: string
       password:
         default: password
+        format: password
         type: string
       permissions:
         enum:
@@ -224,8 +232,18 @@ paths:
         type: string
       - default: ""
         description: permissions
+        enum:
+        - read-only
+        - banned
+        - admin
         in: query
         name: permissions
+        type: string
+      - default: ""
+        description: birthday
+        format: date
+        in: query
+        name: birthday
         type: string
       - default: 0
         description: offset

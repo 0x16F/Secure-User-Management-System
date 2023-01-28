@@ -11,5 +11,5 @@ CREATE TABLE users (
 	"password" TEXT NOT NULL,
 	"salt" TEXT NOT NULL,
 	"permissions" TEXT NOT NULL DEFAULT 'read-only' REFERENCES "permissions" ("status") ON UPDATE CASCADE ON DELETE CASCADE,
-	"birthday" BIGINT NOT NULL
+	"birthday" DATE NOT NULL
 );

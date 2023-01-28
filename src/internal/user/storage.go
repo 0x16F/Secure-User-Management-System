@@ -43,6 +43,10 @@ func (s *Storage) FindAll(limit, offset int, order string, filters *FindUsersFil
 			if filters.Permissions != "" {
 				query.Where("permissions LIKE ?", filters.Permissions+"%")
 			}
+
+			if filters.Birthday != "" {
+				query.Where("birthday = ?", filters.Birthday)
+			}
 		}
 	}
 

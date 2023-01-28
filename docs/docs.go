@@ -176,10 +176,23 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "read-only",
+                            "banned",
+                            "admin"
+                        ],
                         "type": "string",
                         "default": "",
                         "description": "permissions",
                         "name": "permissions",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "format": "date",
+                        "default": "",
+                        "description": "birthday",
+                        "name": "birthday",
                         "in": "query"
                     },
                     {
@@ -525,7 +538,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "birthday": {
-                    "type": "integer"
+                    "type": "string",
+                    "format": "date",
+                    "default": "1970-01-01"
                 },
                 "login": {
                     "type": "string",
@@ -537,6 +552,7 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string",
+                    "format": "password",
                     "default": "password"
                 },
                 "permissions": {
@@ -557,7 +573,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "birthday": {
-                    "type": "integer"
+                    "type": "string",
+                    "format": "date",
+                    "default": "1970-01-01"
                 },
                 "id": {
                     "type": "integer"
@@ -588,7 +606,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "birthday": {
-                    "type": "integer"
+                    "type": "string",
+                    "format": "date",
+                    "default": "1970-01-01"
                 },
                 "login": {
                     "type": "string",
@@ -600,6 +620,7 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string",
+                    "format": "password",
                     "default": "password"
                 },
                 "permissions": {

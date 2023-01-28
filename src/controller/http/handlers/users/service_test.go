@@ -41,7 +41,7 @@ func TestHandler_FindOne(t *testing.T) {
 				Surname:     "admin",
 				Login:       "admin",
 				Permissions: "admin",
-				Birthday:    0,
+				Birthday:    "1970-01-01",
 			},
 			ExpectedCode: http.StatusOK,
 			MockCallback: func(s *mock_user.MockStorager, InputParam int64, ExpectedUser *user.FindUserDTO) {
@@ -289,7 +289,7 @@ func TestHandler_Create(t *testing.T) {
 	testTable := []Test{
 		{
 			Name:         "OK",
-			InputBody:    `{"name": "Иван", "surname": "Иванов", "login": "ivanov123", "password": "ivanov123", "permissions": "read-only", "birthday": 696435862}`,
+			InputBody:    `{"name": "Иван", "surname": "Иванов", "login": "ivanov123", "password": "ivanov123", "permissions": "read-only", "birthday": "1970-01-01"}`,
 			ExpectedCode: http.StatusCreated,
 			MockCallback: func(s *mock_user.MockStorager) {
 				id := int64(1)
@@ -300,7 +300,7 @@ func TestHandler_Create(t *testing.T) {
 		},
 		{
 			Name:         "user is already exists",
-			InputBody:    `{"name": "Иван", "surname": "Иванов", "login": "ivanov123", "password": "ivanov123", "permissions": "read-only", "birthday": 696435862}`,
+			InputBody:    `{"name": "Иван", "surname": "Иванов", "login": "ivanov123", "password": "ivanov123", "permissions": "read-only", "birthday": "1970-01-01"}`,
 			ExpectedCode: http.StatusConflict,
 			MockCallback: func(s *mock_user.MockStorager) {
 				s.EXPECT().FindByLogin("ivanov123").Return(nil, nil)
@@ -308,27 +308,27 @@ func TestHandler_Create(t *testing.T) {
 		},
 		{
 			Name:         "bad request",
-			InputBody:    `{"name": "Иван", "surname": "Иванов", "password": "ivanov123", "permissions": "read-only", "birthday": 696435862}`,
+			InputBody:    `{"name": "Иван", "surname": "Иванов", "password": "ivanov123", "permissions": "read-only", "birthday": "1970-01-01"}`,
 			ExpectedCode: http.StatusBadRequest,
 		},
 		{
 			Name:         "invalid login length",
-			InputBody:    `{"name": "Иван", "surname": "Иванов", "login": "iv", "password": "ivanov123", "permissions": "read-only", "birthday": 696435862}`,
+			InputBody:    `{"name": "Иван", "surname": "Иванов", "login": "iv", "password": "ivanov123", "permissions": "read-only", "birthday": "1970-01-01"}`,
 			ExpectedCode: http.StatusBadRequest,
 		},
 		{
 			Name:         "invlaid login",
-			InputBody:    `{"name": "Иван", "surname": "Иванов", "login": "Иванов", "password": "ivanov123", "permissions": "read-only", "birthday": 696435862}`,
+			InputBody:    `{"name": "Иван", "surname": "Иванов", "login": "Иванов", "password": "ivanov123", "permissions": "read-only", "birthday": "1970-01-01"}`,
 			ExpectedCode: http.StatusBadRequest,
 		},
 		{
 			Name:         "invalid password length",
-			InputBody:    `{"name": "Иван", "surname": "Иванов", "login": "ivanov123", "password": "iv", "permissions": "read-only", "birthday": 696435862}`,
+			InputBody:    `{"name": "Иван", "surname": "Иванов", "login": "ivanov123", "password": "iv", "permissions": "read-only", "birthday": "1970-01-01"}`,
 			ExpectedCode: http.StatusBadRequest,
 		},
 		{
 			Name:         "invalid permission",
-			InputBody:    `{"name": "Иван", "surname": "Иванов", "login": "ivanov123", "password": "ivanov123", "permissions": "read", "birthday": 696435862}`,
+			InputBody:    `{"name": "Иван", "surname": "Иванов", "login": "ivanov123", "password": "ivanov123", "permissions": "read", "birthday": "1970-01-01"}`,
 			ExpectedCode: http.StatusBadRequest,
 		},
 	}
@@ -387,7 +387,7 @@ func TestHandler_FindAll(t *testing.T) {
 					Surname:     "admin",
 					Login:       "admin",
 					Permissions: "admin",
-					Birthday:    0,
+					Birthday:    "1970-01-01",
 				},
 			},
 			ExpectedCode: http.StatusOK,
@@ -397,7 +397,7 @@ func TestHandler_FindAll(t *testing.T) {
 		},
 		{
 			Name:         "Not found",
-			InputLimit:   10,
+			InputLimit:   0,
 			InputOffset:  5,
 			ExpectedCode: http.StatusNotFound,
 			MockCallback: func(s *mock_user.MockStorager, limit, offset int, ExpectedUsers *[]user.FindUserDTO) {
@@ -427,6 +427,7 @@ func TestHandler_FindAll(t *testing.T) {
 			router.ServeHTTP(w, req)
 
 			if w.Code != testCase.ExpectedCode {
+				t.Log(w.Body.String())
 				t.Fatalf("Wrong status code, exptected: %d, got %d", testCase.ExpectedCode, w.Code)
 			}
 
