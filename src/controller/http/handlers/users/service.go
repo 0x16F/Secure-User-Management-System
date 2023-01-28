@@ -156,6 +156,8 @@ func (h *Handler) Delete(c echo.Context) error {
 		return systemError.Send(c)
 	}
 
+	h.Cache.Append(fmt.Sprint(id), []byte("deleted"))
+
 	success := response.Success(http.StatusOK, "OK")
 	return success.Send(c)
 }

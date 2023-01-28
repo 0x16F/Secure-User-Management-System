@@ -8,6 +8,7 @@ import (
 	"test-project/src/internal/permissions"
 	headerparser "test-project/src/pkg/header-parser"
 	"test-project/src/pkg/jwt"
+	"time"
 
 	"github.com/allegro/bigcache/v3"
 	"github.com/labstack/echo/v4"
@@ -37,6 +38,18 @@ func (h *Handler) IsAuthorized(next echo.HandlerFunc) echo.HandlerFunc {
 				systemError := response.SystemError("Internal error, try again later", err.Error())
 				return systemError.Send(c)
 			}
+		}
+
+		if bytes.Equal(result, []byte("deleted")) {
+			c.SetCookie(&http.Cookie{
+				Name:     "refresh",
+				Value:    "",
+				Expires:  time.Unix(0, 0),
+				MaxAge:   -1,
+				HttpOnly: true,
+			})
+
+			return response.NewAppError(http.StatusForbidden, "Account is not exists", "").Send(c)
 		}
 
 		if token.Permissions == permissions.BannedPermission || bytes.Equal(result, []byte(permissions.BannedPermission)) {

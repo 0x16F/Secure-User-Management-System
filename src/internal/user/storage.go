@@ -29,19 +29,19 @@ func (s *Storage) FindAll(limit, offset int, order string, filters *FindUsersFil
 	if filters != nil {
 		if *filters != (FindUsersFilters{}) {
 			if filters.Name != "" {
-				query.Where("name LIKE ?", filters.Name+"%")
+				query.Where("lower(name) LIKE lower(?)", filters.Name+"%")
 			}
 
 			if filters.Surname != "" {
-				query.Where("surname LIKE ?", filters.Surname+"%")
+				query.Where("lower(surname) LIKE lower(?)", filters.Surname+"%")
 			}
 
 			if filters.Login != "" {
-				query.Where("login LIKE ?", filters.Login+"%")
+				query.Where("lower(login) LIKE lower(?)", filters.Login+"%")
 			}
 
 			if filters.Permissions != "" {
-				query.Where("permissions LIKE ?", filters.Permissions+"%")
+				query.Where("lower(permissions) LIKE lower(?)", filters.Permissions+"%")
 			}
 
 			if filters.Birthday != "" {
