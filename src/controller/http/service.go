@@ -9,6 +9,7 @@ import (
 	"github.com/allegro/bigcache/v3"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 	echoSwagger "github.com/swaggo/echo-swagger"
 
 	_ "test-project/docs"
@@ -16,6 +17,8 @@ import (
 
 func NewServer(storage *repository.Storage, cache *bigcache.BigCache, jwt jwt.Servicer) *Server {
 	router := echo.New()
+
+	router.Logger.SetLevel(log.DEBUG)
 
 	server := &Server{
 		Router:   router,

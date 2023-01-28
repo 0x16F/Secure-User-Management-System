@@ -36,7 +36,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.RequestLoginDTO"
+                            "$ref": "#/definitions/auth.LoginRequest"
                         }
                     }
                 ],
@@ -44,31 +44,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.loginResponse"
+                            "$ref": "#/definitions/auth.AccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/auth.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/auth.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/auth.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/auth.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     }
                 }
@@ -89,25 +95,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.refreshResponse"
+                            "$ref": "#/definitions/auth.AccessResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/auth.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/auth.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/auth.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     }
                 }
@@ -147,34 +153,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/user.FindUserDTO"
-                            }
+                            "$ref": "#/definitions/users.FindUsersResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     }
                 }
@@ -212,31 +215,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/users.createResponse"
+                            "$ref": "#/definitions/users.CreateUserResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     }
                 }
@@ -277,25 +280,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     }
                 }
@@ -328,31 +331,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/users.successResponse"
+                            "$ref": "#/definitions/response.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     }
                 }
@@ -397,31 +400,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/users.successResponse"
+                            "$ref": "#/definitions/response.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/users.errorResponse"
+                            "$ref": "#/definitions/response.AppError"
                         }
                     }
                 }
@@ -429,7 +432,15 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "auth.RequestLoginDTO": {
+        "auth.AccessResponse": {
+            "type": "object",
+            "properties": {
+                "access": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.LoginRequest": {
             "type": "object",
             "properties": {
                 "login": {
@@ -440,27 +451,32 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.errorResponse": {
+        "response.AppError": {
+            "type": "object",
+            "properties": {
+                "developer_message": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/response.Map"
+                }
+            }
+        },
+        "response.Map": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "response.SuccessResponse": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string"
-                }
-            }
-        },
-        "auth.loginResponse": {
-            "type": "object",
-            "properties": {
-                "access": {
-                    "type": "string"
-                }
-            }
-        },
-        "auth.refreshResponse": {
-            "type": "object",
-            "properties": {
-                "access": {
-                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/response.Map"
                 }
             }
         },
@@ -533,7 +549,7 @@ const docTemplate = `{
                 }
             }
         },
-        "users.createResponse": {
+        "users.CreateUserResponse": {
             "type": "object",
             "properties": {
                 "id": {
@@ -541,19 +557,17 @@ const docTemplate = `{
                 }
             }
         },
-        "users.errorResponse": {
+        "users.FindUsersResponse": {
             "type": "object",
             "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "users.successResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
+                "count": {
+                    "type": "integer"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.FindUserDTO"
+                    }
                 }
             }
         }

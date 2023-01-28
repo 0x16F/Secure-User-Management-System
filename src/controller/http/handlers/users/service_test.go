@@ -124,6 +124,12 @@ func TestHandler_Update(t *testing.T) {
 			},
 		},
 		{
+			Name:         "Empty json",
+			InputUserId:  "1",
+			InputBody:    `{}`,
+			ExpectedCode: http.StatusBadRequest,
+		},
+		{
 			Name:         "Invalid id",
 			InputUserId:  "undefined",
 			InputBody:    `{"permissions": "banned"}`,

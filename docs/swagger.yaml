@@ -1,26 +1,35 @@
 basePath: /
 definitions:
-  auth.RequestLoginDTO:
+  auth.AccessResponse:
+    properties:
+      access:
+        type: string
+    type: object
+  auth.LoginRequest:
     properties:
       login:
         type: string
       password:
         type: string
     type: object
-  auth.errorResponse:
+  response.AppError:
+    properties:
+      developer_message:
+        type: string
+      message:
+        type: string
+      params:
+        $ref: '#/definitions/response.Map'
+    type: object
+  response.Map:
+    additionalProperties: true
+    type: object
+  response.SuccessResponse:
     properties:
       message:
         type: string
-    type: object
-  auth.loginResponse:
-    properties:
-      access:
-        type: string
-    type: object
-  auth.refreshResponse:
-    properties:
-      access:
-        type: string
+      params:
+        $ref: '#/definitions/response.Map'
     type: object
   user.CreateUserDTO:
     properties:
@@ -67,20 +76,19 @@ definitions:
       surname:
         type: string
     type: object
-  users.createResponse:
+  users.CreateUserResponse:
     properties:
       id:
         type: integer
     type: object
-  users.errorResponse:
+  users.FindUsersResponse:
     properties:
-      message:
-        type: string
-    type: object
-  users.successResponse:
-    properties:
-      message:
-        type: string
+      count:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/user.FindUserDTO'
+        type: array
     type: object
 host: localhost:8080
 info:
@@ -101,30 +109,34 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/auth.RequestLoginDTO'
+          $ref: '#/definitions/auth.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.loginResponse'
+            $ref: '#/definitions/auth.AccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/auth.errorResponse'
+            $ref: '#/definitions/response.AppError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.AppError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/auth.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/auth.errorResponse'
+            $ref: '#/definitions/response.AppError'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/auth.errorResponse'
+            $ref: '#/definitions/response.AppError'
       summary: login
       tags:
       - auth
@@ -138,19 +150,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.refreshResponse'
+            $ref: '#/definitions/auth.AccessResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/auth.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/auth.errorResponse'
+            $ref: '#/definitions/response.AppError'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/auth.errorResponse'
+            $ref: '#/definitions/response.AppError'
       summary: refresh
       tags:
       - auth
@@ -173,25 +185,23 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/user.FindUserDTO'
-            type: array
+            $ref: '#/definitions/users.FindUsersResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
       security:
       - ApiKeyAuth: []
       summary: get users
@@ -215,23 +225,23 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/users.createResponse'
+            $ref: '#/definitions/users.CreateUserResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
       security:
       - ApiKeyAuth: []
       summary: create user
@@ -253,23 +263,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/users.successResponse'
+            $ref: '#/definitions/response.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
       security:
       - ApiKeyAuth: []
       summary: delete user
@@ -294,19 +304,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
       security:
       - ApiKeyAuth: []
       summary: get user
@@ -335,23 +345,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/users.successResponse'
+            $ref: '#/definitions/response.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/users.errorResponse'
+            $ref: '#/definitions/response.AppError'
       security:
       - ApiKeyAuth: []
       summary: update user

@@ -62,7 +62,7 @@ type Storage struct {
 type Storager interface {
 	FindOne(id int64) (*FindUserDTO, error)
 	FindByLogin(login string) (*User, error)
-	FindAll(limit, offset int) (*[]FindUserDTO, error)
+	FindAll(limit, offset int) (*[]FindUserDTO, int, error)
 	Delete(id int64) error
 	Create(dto *UserDTO) (*int64, error)
 	Update(id int64, dto *UpdateUserDTO) error

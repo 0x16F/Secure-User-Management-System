@@ -2,6 +2,7 @@ package users
 
 import (
 	"test-project/src/controller/repository"
+	"test-project/src/internal/user"
 
 	"github.com/allegro/bigcache/v3"
 	"github.com/labstack/echo/v4"
@@ -22,14 +23,11 @@ type IHandler interface {
 	CheckPermissions(next echo.HandlerFunc) echo.HandlerFunc
 }
 
-type errorResponse struct {
-	Message string `json:"message"`
+type FindUsersResponse struct {
+	Count int                 `json:"count"`
+	Users *[]user.FindUserDTO `json:"users"`
 }
 
-type successResponse struct {
-	Message string `json:"message"`
-}
-
-type createResponse struct {
+type CreateUserResponse struct {
 	Id int64 `json:"id"`
 }

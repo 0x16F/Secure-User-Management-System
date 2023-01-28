@@ -12,10 +12,10 @@ func (s *Storage) FindByLogin(login string) (*User, error) {
 	return user, err
 }
 
-func (s *Storage) FindAll(limit, offset int) (*[]FindUserDTO, error) {
+func (s *Storage) FindAll(limit, offset int) (*[]FindUserDTO, int, error) {
 	users := make([]FindUserDTO, 0)
-	err := s.db.Model(&users).Limit(limit).Offset(offset).Select()
-	return &users, err
+	count, err := s.db.Model(&users).Limit(limit).Offset(offset).SelectAndCount()
+	return &users, count, err
 }
 
 func (s *Storage) Delete(id int64) error {

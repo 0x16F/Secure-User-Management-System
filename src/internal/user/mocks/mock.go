@@ -64,12 +64,13 @@ func (mr *MockStoragerMockRecorder) Delete(id interface{}) *gomock.Call {
 }
 
 // FindAll mocks base method.
-func (m *MockStorager) FindAll(limit, offset int) (*[]user.FindUserDTO, error) {
+func (m *MockStorager) FindAll(limit, offset int) (*[]user.FindUserDTO, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindAll", limit, offset)
 	ret0, _ := ret[0].(*[]user.FindUserDTO)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // FindAll indicates an expected call of FindAll.

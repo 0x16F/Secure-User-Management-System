@@ -8,7 +8,7 @@ import (
 
 func LoginLenght(login string) bool {
 	loginLength := len(login)
-	return loginLength >= minLoginLength && loginLength <= maxLoginLength
+	return loginLength >= MinLoginLength && loginLength <= MaxLoginLength
 }
 
 func Login(login string) bool {
@@ -17,7 +17,7 @@ func Login(login string) bool {
 
 func PasswordLength(password string) bool {
 	passwordLength := len(password)
-	return passwordLength >= minPasswordLength && passwordLength <= maxPasswordLength
+	return passwordLength >= MinPasswordLength && passwordLength <= MaxPasswordLength
 }
 
 func Permission(permission string) bool {

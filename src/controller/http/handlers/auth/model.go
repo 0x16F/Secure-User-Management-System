@@ -21,19 +21,11 @@ type IHandler interface {
 	IsAuthorized(next echo.HandlerFunc) echo.HandlerFunc
 }
 
-type RequestLoginDTO struct {
+type LoginRequest struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
 }
 
-type errorResponse struct {
-	Message string `json:"message"`
-}
-
-type loginResponse struct {
-	Access string `json:"access"`
-}
-
-type refreshResponse struct {
+type AccessResponse struct {
 	Access string `json:"access"`
 }

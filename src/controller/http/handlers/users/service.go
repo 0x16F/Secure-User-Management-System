@@ -1,8 +1,10 @@
 package users
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"test-project/src/controller/http/response"
 	"test-project/src/controller/repository"
 	"test-project/src/internal/permissions"
 	"test-project/src/internal/user"
@@ -30,71 +32,72 @@ func NewHandler(router *echo.Echo, cache *bigcache.BigCache, storage *repository
 // @Produce  json
 // @Param id path integer true "user id"
 // @Param input body user.UpdateUserDTO true "update info"
-// @Success 200 {object} successResponse
-// @Failure 400,403,404 {object} errorResponse
-// @Failure 500 {object} errorResponse
+// @Success 200 {object} response.SuccessResponse
+// @Failure 400,403,404 {object} response.AppError
+// @Failure 500 {object} response.AppError
 // @Router /users/{id} [patch]
 func (h *Handler) Update(c echo.Context) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "invalid id",
+		validationErr := response.BadRequestError("Bad Request", "Incorrect id")
+		validationErr.WithParams(response.Map{
+			"id": "this field should be int64",
 		})
+		return validationErr.Send(c)
 	}
 
 	request := user.UpdateUserDTO{}
 	if err := c.Bind(&request); err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": err.Error(),
-		})
+		h.Router.Logger.Error(err)
+		return response.BadRequestError("Failed to parse JSON", err.Error()).Send(c)
+	}
+
+	// is request empty?
+	if request == (user.UpdateUserDTO{}) {
+		return response.BadRequestError("Empty request", "All params in request is nil").Send(c)
 	}
 
 	// is permission valid?
 	if request.Permissions != nil {
 		if !validate.Permission(*request.Permissions) {
-			return c.JSON(http.StatusBadRequest, echo.Map{
-				"message": "invalid permission",
-			})
+			return response.BadRequestError("Incorrect permission", "This permission is not exists").Send(c)
 		}
 	}
 
 	if request.Login != nil {
 		// is login valid?
 		if !validate.Login(*request.Login) {
-			return c.JSON(http.StatusBadRequest, echo.Map{
-				"message": "incorrect login, use only latin symbols and arabian numbers",
-			})
+			validationErr := response.BadRequestError("Incorrect login", "You can use only latin symbols and arabian numbers")
+			return validationErr.Send(c)
 		}
 
 		// is login length valid?
 		if !validate.LoginLenght(*request.Login) {
-			return c.JSON(http.StatusBadRequest, echo.Map{
-				"message": "incorrect login length",
-			})
+			developerMessage := fmt.Sprintf("Minimum: %d, maximum: %d", validate.MinLoginLength, validate.MaxLoginLength)
+			validationErr := response.BadRequestError("Incorrect login length", developerMessage)
+			return validationErr.Send(c)
 		}
 	}
 
 	// is password length valid?
 	if request.Password != nil {
 		if !validate.PasswordLength(*request.Password) {
-			return c.JSON(http.StatusBadRequest, echo.Map{
-				"message": "incorrect password length",
-			})
+			developerMessage := fmt.Sprintf("Minimum: %d, maximum: %d", validate.MinPasswordLength, validate.MaxPasswordLength)
+			validationErr := response.BadRequestError("Incorrect password length", developerMessage)
+			return validationErr.Send(c)
 		}
 	}
 
 	// is user exists
 	if _, err := h.Storage.Users.FindOne(id); err != nil {
 		if err == pg.ErrNoRows {
-			return c.JSON(http.StatusNotFound, echo.Map{
-				"message": "user not found",
-			})
+			notFoundError := response.NewAppError(http.StatusNotFound, "User not found", "")
+			return notFoundError.Send(c)
 		}
 
 		h.Router.Logger.Error(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": err.Error(),
-		})
+		systemError := response.SystemError("Internal error, try again later", err.Error())
+		return systemError.Send(c)
 	}
 
 	// ban user
@@ -106,14 +109,12 @@ func (h *Handler) Update(c echo.Context) error {
 
 	if err := h.Storage.Users.Update(id, &request); err != nil {
 		h.Router.Logger.Error(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": err.Error(),
-		})
+		systemError := response.SystemError("Internal error, try again later", err.Error())
+		return systemError.Send(c)
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"message": "ok",
-	})
+	success := response.Success(http.StatusOK, "OK")
+	return success.Send(c)
 }
 
 // @Summary delete user
@@ -123,42 +124,39 @@ func (h *Handler) Update(c echo.Context) error {
 // @ID delete user
 // @Produce  json
 // @Param id path integer true "user id"
-// @Success 200 {object} successResponse
-// @Failure 400,403,404 {object} errorResponse
-// @Failure 500 {object} errorResponse
+// @Success 200 {object} response.SuccessResponse
+// @Failure 400,403,404 {object} response.AppError
+// @Failure 500 {object} response.AppError
 // @Router /users/{id} [delete]
 func (h *Handler) Delete(c echo.Context) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "invalid id",
+		validationErr := response.BadRequestError("Bad Request", "Incorrect id")
+		validationErr.WithParams(response.Map{
+			"id": "this field should be int64",
 		})
+		return validationErr.Send(c)
 	}
 
 	if _, err := h.Storage.Users.FindOne(id); err != nil {
-		switch err {
-		case pg.ErrNoRows:
-			return c.JSON(http.StatusNotFound, echo.Map{
-				"message": "user not found",
-			})
-		default:
-			h.Router.Logger.Error(err)
-			return c.JSON(http.StatusInternalServerError, echo.Map{
-				"message": err.Error(),
-			})
+		if err == pg.ErrNoRows {
+			notFoundError := response.NewAppError(http.StatusNotFound, "User not found", "")
+			return notFoundError.Send(c)
 		}
+
+		h.Router.Logger.Error(err)
+		systemError := response.SystemError("Internal error, try again later", err.Error())
+		return systemError.Send(c)
 	}
 
 	if err := h.Storage.Users.Delete(id); err != nil {
 		h.Router.Logger.Error(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": err.Error(),
-		})
+		systemError := response.SystemError("Internal error, try again later", err.Error())
+		return systemError.Send(c)
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"message": "ok",
-	})
+	success := response.Success(http.StatusOK, "OK")
+	return success.Send(c)
 }
 
 // @Summary create user
@@ -169,58 +167,52 @@ func (h *Handler) Delete(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param input body user.CreateUserDTO true "create user info"
-// @Success 201 {object} createResponse
-// @Failure 400,403,404 {object} errorResponse
-// @Failure 500 {object} errorResponse
+// @Success 201 {object} CreateUserResponse
+// @Failure 400,403,404 {object} response.AppError
+// @Failure 500 {object} response.AppError
 // @Router /users [post]
 func (h *Handler) Create(c echo.Context) error {
 	request := user.CreateUserDTO{}
 	if err := c.Bind(&request); err != nil {
 		h.Router.Logger.Error(err)
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "bad request",
-		})
+		return response.BadRequestError("Failed to parse JSON", err.Error()).Send(c)
 	}
 
 	// is permission valid?
 	if !validate.Permission(request.Permissions) {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "invalid permission",
-		})
+		return response.BadRequestError("Incorrect permission", "This permission is not exists").Send(c)
 	}
 
 	// is login valid?
 	if !validate.Login(request.Login) {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "incorrect login, use only latin symbols and arabian numbers",
-		})
+		validationErr := response.BadRequestError("Incorrect login", "You can use only latin symbols and arabian numbers")
+		return validationErr.Send(c)
 	}
 
 	// is login length valid?
 	if !validate.LoginLenght(request.Login) {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "incorrect login length",
-		})
+		developerMessage := fmt.Sprintf("Minimum: %d, maximum: %d", validate.MinLoginLength, validate.MaxLoginLength)
+		validationErr := response.BadRequestError("Incorrect login length", developerMessage)
+		return validationErr.Send(c)
 	}
 
 	// is password length valid?
 	if !validate.PasswordLength(request.Password) {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "incorrect password length",
-		})
+		developerMessage := fmt.Sprintf("Minimum: %d, maximum: %d", validate.MinPasswordLength, validate.MaxPasswordLength)
+		validationErr := response.BadRequestError("Incorrect password length", developerMessage)
+		return validationErr.Send(c)
 	}
 
 	// is user already exists?
 	if _, err := h.Storage.Users.FindByLogin(request.Login); err != nil {
 		if err != pg.ErrNoRows {
-			return c.JSON(http.StatusInternalServerError, echo.Map{
-				"message": err.Error(),
-			})
+			h.Router.Logger.Error(err)
+			systemError := response.SystemError("Internal error, try again later", err.Error())
+			return systemError.Send(c)
 		}
 	} else {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"message": "user is already exists",
-		})
+		systemError := response.NewAppError(http.StatusConflict, "This user is already exists", "")
+		return systemError.Send(c)
 	}
 
 	u := user.NewUser(&request)
@@ -228,13 +220,12 @@ func (h *Handler) Create(c echo.Context) error {
 	id, err := h.Storage.Users.Create(u)
 	if err != nil {
 		h.Router.Logger.Error(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": err.Error(),
-		})
+		systemError := response.SystemError("Internal error, try again later", err.Error())
+		return systemError.Send(c)
 	}
 
-	return c.JSON(http.StatusCreated, echo.Map{
-		"id": id,
+	return c.JSON(http.StatusCreated, CreateUserResponse{
+		Id: *id,
 	})
 }
 
@@ -246,34 +237,36 @@ func (h *Handler) Create(c echo.Context) error {
 // @Produce  json
 // @Param id path integer true "user id"
 // @Success 200 {object} user.FindUserDTO
-// @Failure 400,403,404 {object} errorResponse
-// @Failure 500 {object} errorResponse
+// @Failure 400,403,404 {object} response.AppError
+// @Failure 500 {object} response.AppError
 // @Router /users/{id} [get]
 func (h *Handler) FindOne(c echo.Context) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		h.Router.Logger.Error(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"message": err.Error(),
+		validationErr := response.BadRequestError("Bad Request", "Incorrect id")
+		validationErr.WithParams(response.Map{
+			"id": "this field should be int64",
 		})
+		return validationErr.Send(c)
 	}
 
 	user, err := h.Storage.Users.FindOne(id)
 	if err != nil {
-		switch err {
-		case pg.ErrNoRows:
-			return c.JSON(http.StatusNotFound, echo.Map{
-				"message": "user not found",
-			})
-		default:
-			h.Router.Logger.Error(err)
-			return c.JSON(http.StatusInternalServerError, echo.Map{
-				"message": err.Error(),
-			})
+		if err == pg.ErrNoRows {
+			notFoundError := response.NewAppError(http.StatusNotFound, "User not found", "")
+			return notFoundError.Send(c)
 		}
+
+		h.Router.Logger.Error(err)
+		systemError := response.SystemError("Internal error, try again later", err.Error())
+		return systemError.Send(c)
 	}
 
-	return c.JSON(http.StatusOK, &user)
+	success := response.Success(http.StatusOK, "")
+	success.WithParams(response.Map{
+		"user": &user,
+	})
+	return success.Send(c)
 }
 
 // @Summary get users
@@ -284,9 +277,9 @@ func (h *Handler) FindOne(c echo.Context) error {
 // @Produce  json
 // @Param limit query integer false "limit"
 // @Param offset query integer false "offset"
-// @Success 200 {object} []user.FindUserDTO
-// @Failure 400,403,404 {object} errorResponse
-// @Failure 500 {object} errorResponse
+// @Success 200 {object} FindUsersResponse
+// @Failure 400,403,404 {object} response.AppError
+// @Failure 500 {object} response.AppError
 // @Router /users [get]
 func (h *Handler) FindAll(c echo.Context) error {
 	var limit, offset int
@@ -300,20 +293,20 @@ func (h *Handler) FindAll(c echo.Context) error {
 		limit = 10
 	}
 
-	users, err := h.Storage.Users.FindAll(limit, offset)
+	users, count, err := h.Storage.Users.FindAll(limit, offset)
 	if err != nil {
-		switch err {
-		case pg.ErrNoRows:
-			return c.JSON(http.StatusNotFound, echo.Map{
-				"message": "users not found",
-			})
-		default:
-			h.Router.Logger.Error(err)
-			return c.JSON(http.StatusInternalServerError, echo.Map{
-				"message": err.Error(),
-			})
+		if err == pg.ErrNoRows {
+			notFoundError := response.NewAppError(http.StatusNotFound, "Users not found", "")
+			return notFoundError.Send(c)
 		}
+
+		h.Router.Logger.Error(err)
+		systemError := response.SystemError("Internal error, try again later", err.Error())
+		return systemError.Send(c)
 	}
 
-	return c.JSON(http.StatusOK, &users)
+	return c.JSON(http.StatusOK, FindUsersResponse{
+		Count: count,
+		Users: users,
+	})
 }
