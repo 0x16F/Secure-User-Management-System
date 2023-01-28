@@ -8,7 +8,6 @@ import (
 	"test-project/src/internal/permissions"
 	headerparser "test-project/src/pkg/header-parser"
 	"test-project/src/pkg/jwt"
-	"time"
 
 	"github.com/allegro/bigcache/v3"
 	"github.com/labstack/echo/v4"
@@ -44,7 +43,6 @@ func (h *Handler) IsAuthorized(next echo.HandlerFunc) echo.HandlerFunc {
 			c.SetCookie(&http.Cookie{
 				Name:     "refresh",
 				Value:    "",
-				Expires:  time.Unix(0, 0),
 				MaxAge:   -1,
 				HttpOnly: true,
 			})
