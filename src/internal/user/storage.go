@@ -17,13 +17,41 @@ func (s *Storage) FindByLogin(login string) (*User, error) {
 	return user, err
 }
 
-func (s *Storage) FindAll(limit, offset int, order string) (*[]FindUserDTO, int, error) {
+func (s *Storage) FindAll(limit, offset int, order string, filters *FindUsersFilters) (*[]FindUserDTO, int, error) {
 	if order == "" {
 		order = validate.OrderAsc
 	}
 
 	users := make([]FindUserDTO, 0)
-	count, err := s.db.Model(&users).Limit(limit).Offset(offset).Order(fmt.Sprintf("id %s", order)).SelectAndCount()
+	query := s.db.Model(&users).Limit(limit).Offset(offset).Order(fmt.Sprintf("id %s", order))
+
+	// Name        *string  `json:"name,omitempty" default:"Иван"`
+	// Surname     *string  `json:"surname,omitempty" default:"Иванов"`
+	// Login       *string  `json:"login,omitempty" default:"Ivanov"`
+	// Permissions *string  `json:"permissions,omitempty" enums:"admin,read-only,banned"`
+	// Birthday    *int64   `json:"birthday,omitempty"`
+
+	if filters != nil {
+		if *filters != (FindUsersFilters{}) {
+			if filters.Name != "" {
+				query.Where("name LIKE ?", filters.Name+"%")
+			}
+
+			if filters.Surname != "" {
+				query.Where("surname LIKE ?", filters.Surname+"%")
+			}
+
+			if filters.Login != "" {
+				query.Where("login LIKE ?", filters.Login+"%")
+			}
+
+			if filters.Permissions != "" {
+				query.Where("permissions LIKE ?", filters.Permissions+"%")
+			}
+		}
+	}
+
+	count, err := query.SelectAndCount()
 	return &users, count, err
 }
 

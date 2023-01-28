@@ -277,6 +277,10 @@ func (h *Handler) FindOne(c echo.Context) error {
 // @Produce  json
 // @Param limit query integer false "limit" default(50)
 // @Param order query string false "order" Enums(asc, desc) default(asc)
+// @Param name query string false "name" default()
+// @Param surname query string false "surname" default()
+// @Param login query string false "login" default()
+// @Param permissions query string false "permissions" default()
 // @Param offset query integer false "offset" default(0)
 // @Success 200 {object} FindUsersResponse
 // @Failure 400,403,404 {object} response.AppError
@@ -308,7 +312,14 @@ func (h *Handler) FindAll(c echo.Context) error {
 		order = validate.OrderAsc
 	}
 
-	users, count, err := h.Storage.Users.FindAll(limit, offset, order)
+	filters := &user.FindUsersFilters{
+		Name:        c.QueryParam("name"),
+		Surname:     c.QueryParam("surname"),
+		Login:       c.QueryParam("login"),
+		Permissions: c.QueryParam("permissions"),
+	}
+
+	users, count, err := h.Storage.Users.FindAll(limit, offset, order, filters)
 	if err != nil {
 		if err == pg.ErrNoRows {
 			notFoundError := response.NewAppError(http.StatusNotFound, "Users not found", "")

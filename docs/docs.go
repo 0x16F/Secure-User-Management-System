@@ -155,6 +155,34 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "default": "",
+                        "description": "name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "",
+                        "description": "surname",
+                        "name": "surname",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "",
+                        "description": "login",
+                        "name": "login",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "",
+                        "description": "permissions",
+                        "name": "permissions",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "default": 0,
                         "description": "offset",
@@ -500,19 +528,28 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "login": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "Ivanov"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "Иван"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "password"
                 },
                 "permissions": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "admin",
+                        "read-only",
+                        "banned"
+                    ]
                 },
                 "surname": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "Иванов"
                 }
             }
         },
@@ -526,33 +563,12 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "login": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "Ivanov"
                 },
                 "name": {
-                    "type": "string"
-                },
-                "permissions": {
-                    "type": "string"
-                },
-                "surname": {
-                    "type": "string"
-                }
-            }
-        },
-        "user.UpdateUserDTO": {
-            "type": "object",
-            "properties": {
-                "birthday": {
-                    "type": "integer"
-                },
-                "login": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "Иван"
                 },
                 "permissions": {
                     "type": "string",
@@ -563,7 +579,40 @@ const docTemplate = `{
                     ]
                 },
                 "surname": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "Иванов"
+                }
+            }
+        },
+        "user.UpdateUserDTO": {
+            "type": "object",
+            "properties": {
+                "birthday": {
+                    "type": "integer"
+                },
+                "login": {
+                    "type": "string",
+                    "default": "Ivanov"
+                },
+                "name": {
+                    "type": "string",
+                    "default": "Иван"
+                },
+                "password": {
+                    "type": "string",
+                    "default": "password"
+                },
+                "permissions": {
+                    "type": "string",
+                    "enum": [
+                        "admin",
+                        "read-only",
+                        "banned"
+                    ]
+                },
+                "surname": {
+                    "type": "string",
+                    "default": "Иванов"
                 }
             }
         },

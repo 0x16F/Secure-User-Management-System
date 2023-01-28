@@ -9,6 +9,7 @@ import (
 	"test-project/src/controller/repository"
 	"test-project/src/internal/user"
 	mock_user "test-project/src/internal/user/mocks"
+	"test-project/src/pkg/validate"
 	"testing"
 	"time"
 
@@ -391,7 +392,7 @@ func TestHandler_FindAll(t *testing.T) {
 			},
 			ExpectedCode: http.StatusOK,
 			MockCallback: func(s *mock_user.MockStorager, limit, offset int, ExpectedUsers *[]user.FindUserDTO) {
-				s.EXPECT().FindAll(limit, offset, "").Return(ExpectedUsers, nil)
+				s.EXPECT().FindAll(limit, offset, validate.OrderAsc, nil).Return(ExpectedUsers, nil)
 			},
 		},
 		{
@@ -400,7 +401,7 @@ func TestHandler_FindAll(t *testing.T) {
 			InputOffset:  5,
 			ExpectedCode: http.StatusNotFound,
 			MockCallback: func(s *mock_user.MockStorager, limit, offset int, ExpectedUsers *[]user.FindUserDTO) {
-				s.EXPECT().FindAll(limit, offset, "").Return(nil, pg.ErrNoRows)
+				s.EXPECT().FindAll(limit, offset, validate.OrderAsc, nil).Return(nil, pg.ErrNoRows)
 			},
 		},
 	}
