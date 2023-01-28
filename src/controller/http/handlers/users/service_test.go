@@ -392,7 +392,7 @@ func TestHandler_FindAll(t *testing.T) {
 			},
 			ExpectedCode: http.StatusOK,
 			MockCallback: func(s *mock_user.MockStorager, limit, offset int, ExpectedUsers *[]user.FindUserDTO) {
-				s.EXPECT().FindAll(limit, offset, validate.OrderAsc, nil).Return(ExpectedUsers, nil)
+				s.EXPECT().FindAll(limit, offset, validate.OrderAsc, &user.FindUsersFilters{}).Return(ExpectedUsers, 1, nil)
 			},
 		},
 		{
@@ -401,7 +401,7 @@ func TestHandler_FindAll(t *testing.T) {
 			InputOffset:  5,
 			ExpectedCode: http.StatusNotFound,
 			MockCallback: func(s *mock_user.MockStorager, limit, offset int, ExpectedUsers *[]user.FindUserDTO) {
-				s.EXPECT().FindAll(limit, offset, validate.OrderAsc, nil).Return(nil, pg.ErrNoRows)
+				s.EXPECT().FindAll(limit, offset, validate.OrderAsc, &user.FindUsersFilters{}).Return(nil, 0, pg.ErrNoRows)
 			},
 		},
 	}
@@ -430,13 +430,13 @@ func TestHandler_FindAll(t *testing.T) {
 				t.Fatalf("Wrong status code, exptected: %d, got %d", testCase.ExpectedCode, w.Code)
 			}
 
-			users := make([]*user.FindUserDTO, 0)
+			users := FindUsersResponse{}
 			json.NewDecoder(w.Body).Decode(&users)
 
 			if testCase.ExpectedUsers != nil {
 				for index, exptectedUser := range *testCase.ExpectedUsers {
-					if *users[index] != exptectedUser {
-						t.Fatalf("Expected: %v\nGet: %v", *users[index], exptectedUser)
+					if (*users.Users)[index] != exptectedUser {
+						t.Fatalf("Expected: %v\nGet: %v", (*users.Users)[index], exptectedUser)
 					}
 				}
 			}

@@ -58,7 +58,7 @@ func TestHandler_Login(t *testing.T) {
 			InputBody:        `{"login": "admin", "password": "password"}`,
 			ExpectedLogin:    "admin",
 			ExpectedPassword: "admin12345",
-			ExpectedCode:     http.StatusBadRequest,
+			ExpectedCode:     http.StatusForbidden,
 			MockCallback: func(s *mock_user.MockStorager, login, password string) {
 				salt := "saltsaltsalt"
 				hash, _ := utils.HashString(password, salt)

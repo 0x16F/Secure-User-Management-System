@@ -262,11 +262,7 @@ func (h *Handler) FindOne(c echo.Context) error {
 		return systemError.Send(c)
 	}
 
-	success := response.Success(http.StatusOK, "")
-	success.WithParams(response.Map{
-		"user": &user,
-	})
-	return success.Send(c)
+	return c.JSON(http.StatusOK, &user)
 }
 
 // @Summary get users
