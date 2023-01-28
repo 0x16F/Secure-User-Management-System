@@ -5,6 +5,8 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"math/big"
+
+	"github.com/goccy/go-json"
 )
 
 func GenerateString(length int) string {
@@ -38,4 +40,17 @@ func Contains[T comparable](s []T, e T) bool {
 		}
 	}
 	return false
+}
+
+func TypeConverter[R any](data any) (*R, error) {
+	var result R
+	b, err := json.Marshal(&data)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(b, &result)
+	if err != nil {
+		return nil, err
+	}
+	return &result, err
 }

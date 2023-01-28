@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	"test-project/src/pkg/utils"
 	"test-project/src/pkg/validate"
 )
 
@@ -62,20 +63,12 @@ func (s *Storage) Delete(id int64) error {
 }
 
 func (s *Storage) Create(dto *UserDTO) (*int64, error) {
-	u := User{}
+	u, err := utils.TypeConverter[User](&dto)
+	if err != nil {
+		return nil, err
+	}
 
-	// выглядит не очень, но мне нужно возвращать id пользователя, который был создан
-	// возможно есть какой-то более элегантный способ сделать это на ORM'ке, но я его не знаю
-
-	u.Name = dto.Name
-	u.Surname = dto.Surname
-	u.Login = dto.Login
-	u.Password = dto.Password
-	u.Salt = dto.Salt
-	u.Permissions = dto.Permissions
-	u.Birthday = dto.Birthday
-
-	if _, err := s.db.Model(&u).Insert(); err != nil {
+	if _, err := s.db.Model(u).Insert(); err != nil {
 		return nil, err
 	}
 
