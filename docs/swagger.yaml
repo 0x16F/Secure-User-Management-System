@@ -72,6 +72,10 @@ definitions:
       password:
         type: string
       permissions:
+        enum:
+        - admin
+        - read-only
+        - banned
         type: string
       surname:
         type: string
@@ -171,11 +175,21 @@ paths:
       description: get users
       operationId: get users
       parameters:
-      - description: limit
+      - default: 50
+        description: limit
         in: query
         name: limit
         type: integer
-      - description: offset
+      - default: asc
+        description: order
+        enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - default: 0
+        description: offset
         in: query
         name: offset
         type: integer

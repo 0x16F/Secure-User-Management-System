@@ -8,3 +8,10 @@ const (
 	MinLimit          = 0
 	MaxLimit          = 50
 )
+
+const (
+	OrderAsc  = "ASC"
+	OrderDesc = "DESC"
+)
+
+var Orders = []string{OrderAsc, OrderDesc}

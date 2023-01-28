@@ -275,8 +275,9 @@ func (h *Handler) FindOne(c echo.Context) error {
 // @Description get users
 // @ID get users
 // @Produce  json
-// @Param limit query integer false "limit"
-// @Param offset query integer false "offset"
+// @Param limit query integer false "limit" default(50)
+// @Param order query string false "order" Enums(asc, desc) default(asc)
+// @Param offset query integer false "offset" default(0)
 // @Success 200 {object} FindUsersResponse
 // @Failure 400,403,404 {object} response.AppError
 // @Failure 500 {object} response.AppError
@@ -285,19 +286,29 @@ func (h *Handler) FindAll(c echo.Context) error {
 	limit, offset := validate.MaxLimit, 0
 	var err error
 
+	// is limit valid?
 	if limit, err = strconv.Atoi(c.QueryParam("limit")); err != nil {
 		limit = validate.MaxLimit
 	}
 
+	// is limit in limit range?
 	if !validate.Limit(limit) {
 		limit = validate.MaxLimit
 	}
 
+	// is offset valid?
 	if offset, err = strconv.Atoi(c.QueryParam("offset")); err != nil {
 		offset = 0
 	}
 
-	users, count, err := h.Storage.Users.FindAll(limit, offset)
+	order := c.QueryParam("order")
+
+	// is order valid?
+	if !validate.Order(order) {
+		order = validate.OrderAsc
+	}
+
+	users, count, err := h.Storage.Users.FindAll(limit, offset, order)
 	if err != nil {
 		if err == pg.ErrNoRows {
 			notFoundError := response.NewAppError(http.StatusNotFound, "Users not found", "")

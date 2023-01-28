@@ -138,12 +138,25 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 50,
                         "description": "limit",
                         "name": "limit",
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "default": "asc",
+                        "description": "order",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
+                        "default": 0,
                         "description": "offset",
                         "name": "offset",
                         "in": "query"
@@ -542,7 +555,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "permissions": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "admin",
+                        "read-only",
+                        "banned"
+                    ]
                 },
                 "surname": {
                     "type": "string"

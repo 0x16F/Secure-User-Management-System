@@ -2,6 +2,7 @@ package validate
 
 import (
 	"regexp"
+	"strings"
 	"test-project/src/internal/permissions"
 	"test-project/src/pkg/utils"
 )
@@ -26,4 +27,8 @@ func Permission(permission string) bool {
 
 func Limit(limit int) bool {
 	return limit >= MinLimit && limit <= MaxLimit
+}
+
+func Order(order string) bool {
+	return utils.Contains(Orders, strings.ToUpper(order))
 }

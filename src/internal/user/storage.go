@@ -1,5 +1,10 @@
 package user
 
+import (
+	"fmt"
+	"test-project/src/pkg/validate"
+)
+
 func (s *Storage) FindOne(id int64) (*FindUserDTO, error) {
 	user := &FindUserDTO{}
 	err := s.db.Model(user).Where("id = ?", id).Select()
@@ -12,9 +17,13 @@ func (s *Storage) FindByLogin(login string) (*User, error) {
 	return user, err
 }
 
-func (s *Storage) FindAll(limit, offset int) (*[]FindUserDTO, int, error) {
+func (s *Storage) FindAll(limit, offset int, order string) (*[]FindUserDTO, int, error) {
+	if order == "" {
+		order = validate.OrderAsc
+	}
+
 	users := make([]FindUserDTO, 0)
-	count, err := s.db.Model(&users).Limit(limit).Offset(offset).SelectAndCount()
+	count, err := s.db.Model(&users).Limit(limit).Offset(offset).Order(fmt.Sprintf("id %s", order)).SelectAndCount()
 	return &users, count, err
 }
 
