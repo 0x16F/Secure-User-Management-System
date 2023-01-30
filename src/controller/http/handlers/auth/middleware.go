@@ -17,6 +17,7 @@ func (h *Handler) IsAuthorized(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		access := headerparser.GetUserToken(c)
 
+		// send error if Authorization header is empty
 		if access == "" {
 			return response.NewAppError(http.StatusForbidden, "You need to login", "").Send(c)
 		}
