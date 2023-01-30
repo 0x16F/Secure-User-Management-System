@@ -89,10 +89,14 @@ func (h *Handler) Update(c echo.Context) error {
 		}
 	}
 
-	// ban user
+	// change user role
 	if request.Permissions != nil {
 		if *request.Permissions == permissions.BannedPermission {
 			h.Cache.Set(c.Param("id"), []byte(permissions.BannedPermission))
+		}
+
+		if *request.Permissions == permissions.AdminPermission {
+			h.Cache.Set(c.Param("id"), []byte(permissions.AdminPermission))
 		}
 	}
 
