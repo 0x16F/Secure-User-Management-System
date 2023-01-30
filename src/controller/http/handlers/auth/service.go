@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"test-project/src/controller/http/response"
 	"test-project/src/controller/repository"
-	"test-project/src/internal/permissions"
 	"test-project/src/pkg/jwt"
 	"test-project/src/pkg/utils"
 	"test-project/src/pkg/validate"
@@ -151,12 +150,6 @@ func (h *Handler) Refresh(c echo.Context) error {
 		h.Router.Logger.Error(err)
 		systemError := response.SystemError("Internal error, try again later", err.Error())
 		return systemError.Send(c)
-	}
-
-	// is user banned?
-	if user.Permissions == permissions.BannedPermission {
-		forbiddenErr := response.NewAppError(http.StatusForbidden, "You are banned", "")
-		return forbiddenErr.Send(c)
 	}
 
 	refresh, err := h.JWT.GenerateRefresh(&jwt.GenerateDTO{
