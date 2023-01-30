@@ -132,6 +132,12 @@ func (h *Handler) Delete(c echo.Context) error {
 		return validationErr.Send(c)
 	}
 
+	// reject the request if the account ID is 1
+	if id == 1 {
+		forbiddenErr := response.NewAppError(http.StatusForbidden, "You can't delete this account!", "")
+		return forbiddenErr.Send(c)
+	}
+
 	if err := h.Storage.Users.Delete(id); err != nil {
 		if err == pg.ErrNoRows {
 			notFoundError := response.NewAppError(http.StatusNotFound, "User not found", "")
