@@ -51,8 +51,14 @@ func (h *Handler) IsAuthorized(next echo.HandlerFunc) echo.HandlerFunc {
 			return response.NewAppError(http.StatusForbidden, "Account is not exists", "").Send(c)
 		}
 
+		// reject if user is banend
 		if token.Permissions == permissions.BannedPermission || bytes.Equal(result, []byte(permissions.BannedPermission)) {
 			return response.NewAppError(http.StatusForbidden, "You are banned", "").Send(c)
+		}
+
+		// change token permissions if they r different in cache
+		if !bytes.Equal(result, []byte(permissions.AdminPermission)) && len(result) != 0 {
+			token.Permissions = string(result)
 		}
 
 		headerparser.SetUserId(c, fmt.Sprint(token.Id))
